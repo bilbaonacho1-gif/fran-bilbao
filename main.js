@@ -20,7 +20,7 @@
     'hero.where': 'Mercado Pago — Buenos Aires, Argentina',
     'hero.h1': 'Francisco José Bilbao — Analista de Pricing & Routing Operations',
     'hero.lede': 'Investigo de punta a punta los problemas de procesamiento de pagos en seis mercados de LATAM, y convierto grandes volúmenes de datos transaccionales en decisiones accionables para los equipos.',
-    'hero.hint': 'Mové el cursor para pintar',
+    'hero.hint': 'Mové el cursor para pintar · scrolleá para avanzar →',
     'about.title': 'Perfil',
     'about.big': 'Analista de operaciones de pagos y pricing. Trabajo donde se cruzan el router, los adquirentes y los datos.',
     'about.p1': 'Experiencia práctica investigando de punta a punta problemas de procesamiento de transacciones, coordinando con equipos internos y convirtiendo grandes volúmenes de datos en reportes accionables.',
@@ -226,6 +226,10 @@
     }
   }
 
+  let hxActive = false;
+  let folioApply = () => {};
+  let hxMeasure = () => {};
+
   const scramblers = new Map();
   document.querySelectorAll('[data-scramble]').forEach((el) => scramblers.set(el, new Scramble(el)));
   onReduceChange.push(() => { if (reduceQuery.matches) scramblers.forEach((s) => s.stop()); });
@@ -260,6 +264,7 @@
     }
     document.querySelectorAll('.lang__btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     try { localStorage.setItem('lang', lang); } catch (e) { /* storage unavailable */ }
+    hxMeasure();
   }
   document.querySelectorAll('.lang__btn').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
   let startLang = 'en';
@@ -291,16 +296,13 @@
     const end = runway.querySelector('.folio__end');
     const pages = [...sheets, end];
     let queued = 0, current = -1;
-    function update() {
-      queued = 0;
+    function apply(p) {
       if (reduceQuery.matches) {
         sheets.forEach((sh) => { sh.style.transform = ''; });
         pages.forEach((pg, i) => pg.toggleAttribute('aria-hidden', i !== pages.length - 1));
         current = -1;
         return;
       }
-      const span = runway.offsetHeight - frame.clientHeight;
-      const p = span > 0 ? clamp01(-runway.getBoundingClientRect().top / span) : 0;
       let cur = sheets.length;
       sheets.forEach((sh, i) => {
         const q = clamp01((3 * p - i - 0.2) / 0.7);
@@ -313,11 +315,99 @@
         pages.forEach((pg, i) => pg.toggleAttribute('aria-hidden', i !== cur));
       }
     }
+    folioApply = apply;
+    function update() {
+      queued = 0;
+      if (hxActive) return; /* the horizontal controller drives the folio */
+      const span = runway.offsetHeight - frame.clientHeight;
+      apply(span > 0 ? clamp01(-runway.getBoundingClientRect().top / span) : 0);
+    }
     const request = () => { if (!queued) queued = requestAnimationFrame(update); };
     window.addEventListener('scroll', request, { passive: true });
     window.addEventListener('resize', request);
     onReduceChange.push(request);
     update();
+  }
+
+  /* ------------------------------------------------------------------
+     Horizontal travel (large screens): vertical scroll moves the track
+     sideways. While the folio panel is aligned, the track holds and the
+     same scroll drives the falling sheets instead.
+  ------------------------------------------------------------------ */
+  {
+    const hx = document.querySelector('[data-hx]');
+    const pin = hx.querySelector('.hx__pin');
+    const track = hx.querySelector('.hx__track');
+    const folio = hx.querySelector('[data-folio]');
+    const header = document.querySelector('.top');
+    const mq = window.matchMedia('(min-width: 1024px) and (min-height: 620px)');
+    let dist = 0, folioX = 0, hold = 0, total = 0, topH = 0, hraf = 0;
+
+    const xOf = (el) => el.getBoundingClientRect().left - track.getBoundingClientRect().left;
+    const scrollFor = (x) => (x <= folioX ? x : x + hold);
+
+    function measure() {
+      if (!hxActive) return;
+      topH = header.offsetHeight;
+      document.documentElement.style.setProperty('--top-h', topH + 'px');
+      dist = Math.max(0, track.scrollWidth - pin.clientWidth);
+      folioX = Math.min(dist, xOf(folio));
+      hold = reduceQuery.matches ? 0 : Math.round(window.innerHeight * 3);
+      total = dist + hold;
+      hx.style.height = (pin.offsetHeight + total) + 'px';
+      update();
+    }
+    function update() {
+      hraf = 0;
+      if (!hxActive) return;
+      const s = Math.max(0, Math.min(total, topH - hx.getBoundingClientRect().top));
+      let x, fp;
+      if (s <= folioX) { x = s; fp = 0; }
+      else if (s <= folioX + hold) { x = folioX; fp = hold ? (s - folioX) / hold : 1; }
+      else { x = s - hold; fp = 1; }
+      track.style.transform = `translate3d(${-x}px,0,0)`;
+      folioApply(fp);
+    }
+    const request = () => { if (!hraf) hraf = requestAnimationFrame(update); };
+
+    function setMode() {
+      hxActive = mq.matches;
+      document.documentElement.classList.toggle('hx-on', hxActive);
+      if (!hxActive) { hx.style.height = ''; track.style.transform = ''; window.dispatchEvent(new Event('scroll')); return; }
+      measure();
+    }
+    function goTo(el) {
+      const top = hx.getBoundingClientRect().top + window.scrollY - topH;
+      const x = Math.max(0, Math.min(dist, xOf(el)));
+      window.scrollTo({ top: top + scrollFor(x), behavior: reduceQuery.matches ? 'auto' : 'smooth' });
+    }
+    document.addEventListener('click', (ev) => {
+      const a = ev.target.closest('a[href^="#"]');
+      if (!a || !hxActive) return;
+      const el = document.querySelector(a.getAttribute('href'));
+      if (!el || !track.contains(el)) return;
+      ev.preventDefault();
+      goTo(el);
+      history.replaceState(null, '', a.getAttribute('href'));
+    });
+    /* keyboard focus on something off-screen: travel to it */
+    track.addEventListener('focusin', (ev) => {
+      if (!hxActive || !ev.target.matches(':focus-visible')) return;
+      const r = ev.target.getBoundingClientRect();
+      if (r.left < 0 || r.right > window.innerWidth) {
+        const panel = ev.target.closest('.poster, .cell, .folio, .sec, .hero') || ev.target;
+        goTo(panel);
+      }
+    });
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', () => { measure(); });
+    mq.addEventListener('change', setMode);
+    onReduceChange.push(measure);
+    new ResizeObserver(() => measure()).observe(track);
+    hxMeasure = measure;
+    setMode();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    if (hxActive && location.hash) { const el = document.querySelector(location.hash); if (el && track.contains(el)) requestAnimationFrame(() => goTo(el)); }
   }
 
   /* ------------------------------------------------------------------
