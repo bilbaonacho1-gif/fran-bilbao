@@ -453,6 +453,163 @@
   }
 
   /* ------------------------------------------------------------------
+     Liquid silk behind the role posters: a procedural crimson cloth,
+     dragged by the pointer and rippled on press (four ripple slots).
+     DPR is capped at 1; the CSS background stays as the fallback.
+  ------------------------------------------------------------------ */
+  {
+    const cells = [...document.querySelectorAll('[data-posters] .cell')];
+    const VS = 'attribute vec2 a_position; varying vec2 v_uv; void main(){ v_uv = a_position * 0.5 + 0.5; gl_Position = vec4(a_position, 0.0, 1.0); }';
+    const FS = `
+      precision highp float;
+      varying vec2 v_uv;
+      uniform float uT, uHover, uSeed, uAspect;
+      uniform vec2 uMouse, uVel, uFocus;
+      uniform vec3 uRip[4];           /* x, y, birth time */
+      vec2 hash(vec2 p){ p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return -1.0 + 2.0 * fract(sin(p) * 43758.5453123); }
+      float noise(vec2 p){
+        vec2 i = floor(p), f = fract(p);
+        vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+        return mix(mix(dot(hash(i), f), dot(hash(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0)), u.x),
+                   mix(dot(hash(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0)), dot(hash(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0)), u.x), u.y);
+      }
+      float fbm(vec2 p){ return 0.62 * noise(p) + 0.26 * noise(p * 2.03 + 7.1) + 0.12 * noise(p * 4.1 + 3.3); }
+      vec3 silk(vec2 uv){
+        vec2 p = vec2(uv.x * uAspect, uv.y) * vec2(1.1, 0.75) + uSeed;
+        p += 0.8 * vec2(fbm(p * 0.7 + 4.2), fbm(p * 0.7 - 2.7));
+        float n = fbm(p * 0.75);
+        float fold = sin(n * 13.0);                          /* broad cloth folds */
+        float lit = smoothstep(-1.0, 1.0, fold);
+        float glowAt = 1.0 - smoothstep(0.0, 1.05, length((uv - uFocus) * vec2(uAspect * 0.62, 1.0)));
+        vec3 deep = vec3(0.045, 0.0, 0.012), mid = vec3(0.56, 0.0, 0.125), hot = vec3(1.0, 0.07, 0.25);
+        vec3 col = mix(deep, mid, lit * (0.35 + 0.65 * glowAt));
+        col = mix(col, hot, pow(lit, 3.0) * glowAt * 0.95);
+        col += vec3(1.0, 0.55, 0.62) * pow(max(fold, 0.0), 14.0) * (0.12 + 0.4 * glowAt);   /* sheen on the ridges */
+        return col;
+      }
+      void main(){
+        vec2 uv = v_uv;
+        float t = uT;
+        vec2 ambient = 0.00128 * vec2(sin((uv.y + t * 0.055) * 12.0), cos((uv.x - t * 0.055 * 0.72) * 9.0));
+        vec2 delta = uv - uMouse;
+        float dist = length(delta);
+        float radius = mix(0.21, 0.5, uHover);
+        float falloff = smoothstep(radius, 0.0, dist);
+        float center = smoothstep(0.0, radius * 0.18, dist);
+        float speed = min(length(uVel) * 8.0, 1.0);
+        float edgeMask = smoothstep(0.0, 0.1, uv.x) * smoothstep(0.0, 0.1, uv.y) * smoothstep(0.0, 0.1, 1.0 - uv.x) * smoothstep(0.0, 0.1, 1.0 - uv.y);
+        /* gains are raised over the photo-tuned originals: this cloth is smoother, so it needs a bigger push to read */
+        vec2 drag = uVel * falloff * (0.18 + speed * 0.56) * uHover * 4.0;
+        vec2 swirl = vec2(-delta.y, delta.x) * falloff * speed * 0.0002 * uHover;
+        vec2 pressure = delta * falloff * center * (0.65 + speed * 0.8) * 0.5 * uHover;
+        vec2 radial = delta * sin(dist * 32.0 - t * 2.4) * falloff * center * 0.000064 * 2.0 * uHover;
+        vec2 ripple = vec2(0.0);
+        for (int i = 0; i < 4; i++) {
+          float age = t - uRip[i].z;
+          if (age >= 0.0 && age < 2.6) {
+            vec2 d = uv - uRip[i].xy;
+            float r = length(d);
+            float front = age * 0.3;
+            float envelope = 1.0 - smoothstep(0.0, 0.2, abs(r - front));
+            float fade = 1.0 - smoothstep(0.0, 2.6, age);
+            float wave = sin((r - front) * 34.0);
+            float protection = smoothstep(0.035, 0.144, r);
+            ripple += (d / max(r, 0.09)) * protection * envelope * fade * wave;
+          }
+        }
+        ripple *= 0.07;
+        vec2 sampleUV = clamp(uv + ambient + (drag + swirl + pressure + radial + ripple) * edgeMask, 0.002, 0.998);
+        vec3 col = silk(sampleUV);
+        col += vec3(1.0, 0.1, 0.28) * falloff * falloff * 0.16 * uHover;   /* faint glow under the pointer */
+        gl_FragColor = vec4(col, 1.0);
+      }`;
+    const FOCUS = [[0.38, 0.22], [0.72, 0.7], [0.5, -0.08]];
+    const sheets = [];
+    if (!reduceQuery.matches) {
+      cells.forEach((cell, k) => {
+        const canvas = document.createElement('canvas');
+        canvas.className = 'silk';
+        canvas.setAttribute('aria-hidden', 'true');
+        const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
+        if (!gl) return;
+        const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+        const pr = gl.createProgram();
+        gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS));
+        gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS));
+        gl.linkProgram(pr);
+        if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return;   /* keep the CSS background */
+        gl.useProgram(pr);
+        gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+        const loc = gl.getAttribLocation(pr, 'a_position');
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        const U = {}; ['uT', 'uHover', 'uSeed', 'uAspect', 'uMouse', 'uVel', 'uFocus', 'uRip'].forEach((n) => { U[n] = gl.getUniformLocation(pr, n); });
+        gl.uniform1f(U.uSeed, 3.7 + k * 5.3);
+        gl.uniform2f(U.uFocus, FOCUS[k % 3][0], FOCUS[k % 3][1]);
+        cell.prepend(canvas);
+        cell.classList.add('silk-on');
+        const st = { cell, canvas, gl, U, mx: 0.5, my: 0.5, tx: 0.5, ty: 0.5, pmx: 0.5, pmy: 0.5, vx: 0, vy: 0, hover: 0, hoverTo: 0, rip: new Float32Array(12).fill(-100), slot: 0 };
+        const size = () => {
+          const w = Math.max(1, cell.clientWidth), h = Math.max(1, cell.clientHeight);   /* DPR capped at 1 */
+          if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+          gl.uniform1f(U.uAspect, w / h);
+        };
+        st.size = size;
+        new ResizeObserver(size).observe(cell);
+        size();
+        const at = (ev) => { const r = cell.getBoundingClientRect(); return [(ev.clientX - r.left) / r.width, 1 - (ev.clientY - r.top) / r.height]; };
+        cell.addEventListener('pointermove', (ev) => { [st.tx, st.ty] = at(ev); st.hoverTo = 1; }, { passive: true });
+        cell.addEventListener('pointerleave', () => { st.hoverTo = 0; }, { passive: true });
+        cell.addEventListener('pointerdown', (ev) => {
+          if (ev.target.closest('a, button')) return;
+          const [x, y] = at(ev);
+          st.rip.set([x, y, clock], st.slot * 3);
+          st.slot = (st.slot + 1) % 4;
+          st.tx = x; st.ty = y; st.hoverTo = 1;
+        }, { passive: true });
+        sheets.push(st);
+      });
+    }
+    let clock = 0, sraf = 0, slast = 0, onScreen = false;
+    function sframe(now) {
+      sraf = 0;
+      const dt = slast ? Math.min(100, now - slast) : 16.667;
+      slast = now;
+      clock += dt / 1000;
+      const f = Math.max(0.48, Math.min(3, dt / 16.667));
+      const pLerp = 1 - Math.pow(0.96, f), vLerp = 1 - Math.pow(0.88, f), hLerp = 1 - Math.pow(0.94, f);
+      for (const st of sheets) {
+        if (st.cell.style.visibility === 'hidden') continue;
+        st.mx += (st.tx - st.mx) * pLerp; st.my += (st.ty - st.my) * pLerp;
+        st.vx = st.vx * Math.pow(0.96, f) * (1 - vLerp) + ((st.mx - st.pmx) / f) * vLerp;
+        st.vy = st.vy * Math.pow(0.96, f) * (1 - vLerp) + ((st.my - st.pmy) / f) * vLerp;
+        st.pmx = st.mx; st.pmy = st.my;
+        st.hover += (st.hoverTo - st.hover) * hLerp;
+        const { gl, U } = st;
+        gl.uniform1f(U.uT, clock);
+        gl.uniform1f(U.uHover, st.hover);
+        gl.uniform2f(U.uMouse, st.mx, st.my);
+        gl.uniform2f(U.uVel, st.vx, st.vy);
+        gl.uniform3fv(U.uRip, st.rip);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+      srun();
+    }
+    function srun() { if (!sraf && onScreen && !document.hidden && sheets.length && !reduceQuery.matches) sraf = requestAnimationFrame(sframe); }
+    function sstop() { if (sraf) cancelAnimationFrame(sraf); sraf = 0; slast = 0; }
+    if (sheets.length) {
+      new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (onScreen) srun(); else sstop(); }).observe(document.querySelector('[data-posters]'));
+      document.addEventListener('visibilitychange', () => { if (document.hidden) sstop(); else srun(); });
+      onReduceChange.push(() => {
+        /* reduced motion: back to the static composed background */
+        sheets.forEach((st) => { st.cell.classList.toggle('silk-on', !reduceQuery.matches); });
+        if (reduceQuery.matches) sstop(); else srun();
+      });
+    }
+  }
+
+  /* ------------------------------------------------------------------
      Role posters: contained 1800ms change, cubic-bezier(.86,0,.07,1).
      0-600 out scales to .85; 600-1200 out slides up, in slides up from
      below (both .85); 1200-1800 in scales back to 1.
