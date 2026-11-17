@@ -233,6 +233,8 @@
   let heroRelang = () => {};
   let heroPrime = () => {};
   let splitTitles = () => {};
+  let profileRebuild = () => {};
+  let chipsRelang = () => {};
   let postersMeasure = () => {};
   let heroEnter = () => {};
 
@@ -275,6 +277,8 @@
     try { localStorage.setItem('lang', lang); } catch (e) { /* storage unavailable */ }
     postersMeasure();
     splitTitles();
+    profileRebuild();
+    chipsRelang();
     hxMeasure();
     heroRelang();
   }
@@ -303,6 +307,131 @@
     });
   };
   splitTitles();
+
+  /* ------------------------------------------------------------------
+     Market chips: hovering, focusing or tapping one decodes its code
+     into the full country name.
+  ------------------------------------------------------------------ */
+  {
+    const NAMES = {
+      en: { AR: 'Argentina', MX: 'Mexico', CO: 'Colombia', PE: 'Peru', CL: 'Chile', UY: 'Uruguay' },
+      es: { AR: 'Argentina', MX: 'México', CO: 'Colombia', PE: 'Perú', CL: 'Chile', UY: 'Uruguay' },
+    };
+    const lang = () => (document.documentElement.lang === 'es' ? 'es' : 'en');
+    const chips = [...document.querySelectorAll('.hero__sites li')].map((li, i) => {
+      const code = li.textContent.trim();
+      li.style.setProperty('--i', i);
+      li.tabIndex = 0;
+      li.setAttribute('data-scramble', '');
+      const scr = new Scramble(li);
+      const chip = { li, code, scr, open: false };
+      const show = (open) => {
+        if (chip.open === open) return;
+        chip.open = open;
+        li.classList.toggle('is-open', open);
+        scr.build(open ? NAMES[lang()][code] : code);
+        li.setAttribute('aria-label', NAMES[lang()][code]);
+        scr.trigger();
+      };
+      li.addEventListener('pointerenter', (ev) => { if (ev.pointerType === 'mouse') show(true); });
+      li.addEventListener('pointerleave', (ev) => { if (ev.pointerType === 'mouse') show(false); });
+      li.addEventListener('focus', () => show(true));
+      li.addEventListener('blur', () => show(false));
+      li.addEventListener('pointerdown', (ev) => { ev.stopPropagation(); });   /* not a hero "hold" */
+      li.addEventListener('click', (ev) => { if (ev.pointerType && ev.pointerType !== 'mouse') show(!chip.open); });
+      chip.show = show;
+      return chip;
+    });
+    chipsRelang = () => chips.forEach((c) => {
+      c.li.setAttribute('aria-label', NAMES[lang()][c.code]);
+      if (c.open) c.scr.build(NAMES[lang()][c.code]);
+    });
+    chipsRelang();
+  }
+
+  /* ------------------------------------------------------------------
+     Profile headline: the sentence decodes letter by letter when the
+     section arrives, and a word re-scrambles when the pointer crosses it.
+  ------------------------------------------------------------------ */
+  {
+    const el = document.querySelector('.about__big');
+    const grid = document.querySelector('.about__grid');
+    let words = [], glyphs = [], draf = 0, dlast = 0, played = false;
+    const rnd = () => ALPHABET[(Math.random() * ALPHABET.length) | 0];
+
+    function build() {
+      if (draf) cancelAnimationFrame(draf);
+      draf = 0;
+      const text = (el.querySelector('.sr-only') || el).textContent.trim();
+      el.textContent = '';
+      el.classList.add('decode');
+      const real = document.createElement('span');
+      real.className = 'sr-only';
+      real.textContent = text;
+      const show = document.createElement('span');
+      show.setAttribute('aria-hidden', 'true');
+      words = []; glyphs = [];
+      text.split(/\s+/).forEach((word, wi) => {
+        if (wi) show.appendChild(document.createTextNode(' '));
+        const w = document.createElement('span');
+        w.className = 'w';
+        const mine = [];
+        for (const ch of word) {
+          const g = document.createElement('span');
+          g.className = 'g';
+          g.textContent = ch;
+          w.appendChild(g);
+          mine.push({ node: g, ch, until: 0, noise: false });
+        }
+        show.appendChild(w);
+        w.addEventListener('pointerenter', () => scramble(mine, 380, w));
+        words.push({ node: w, glyphs: mine });
+        glyphs.push(...mine);
+      });
+      el.append(real, show);
+    }
+
+    /* lock word widths while letters change so the lines never re-wrap */
+    const lock = (list) => list.forEach((w) => { w.style.width = w.offsetWidth + 'px'; });
+    const unlock = () => words.forEach((w) => { w.node.style.width = ''; });
+
+    function scramble(list, span, wordNode) {
+      if (reduceQuery.matches) return;
+      if (wordNode) lock([wordNode]);
+      const now = performance.now();
+      list.forEach((g, i) => { g.until = Math.max(g.until, now + (span * (i + 1)) / list.length + Math.random() * 120); });
+      if (!draf) { dlast = 0; draf = requestAnimationFrame(tick); }
+    }
+    function tick(now) {
+      draf = 0;
+      let busy = false;
+      const refresh = now - dlast >= 50;
+      if (refresh) dlast = now;
+      for (const g of glyphs) {
+        if (g.until > now) {
+          busy = true;
+          if (!g.noise) { g.noise = true; g.node.classList.add('is-noise'); g.node.textContent = rnd(); }
+          else if (refresh) g.node.textContent = rnd();
+        } else if (g.noise) {
+          g.noise = false; g.node.classList.remove('is-noise'); g.node.textContent = g.ch;
+        }
+      }
+      if (busy) draf = requestAnimationFrame(tick); else unlock();
+    }
+    function play() {
+      if (played || reduceQuery.matches) return;
+      played = true;
+      lock(words.map((w) => w.node));
+      scramble(glyphs, 1500);
+    }
+
+    profileRebuild = build;
+    build();
+    new IntersectionObserver((entries, io) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); setTimeout(play, 450); }
+    }, { rootMargin: '0px 0px -8% 0px' }).observe(grid);
+    onReduceChange.push(() => { if (reduceQuery.matches) { glyphs.forEach((g) => { g.until = 0; }); if (!draf) draf = requestAnimationFrame(tick); } });
+  }
 
   /* ------------------------------------------------------------------
      Scroll reveal

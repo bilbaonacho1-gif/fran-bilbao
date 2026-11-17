@@ -140,8 +140,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media screen { .hero__name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
 .hero__lede { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
 .hero__lede { font-size: 0.8125rem; line-height: 1.4; color: var(--ink-soft); }
-.hero__sites { grid-area: sites; display: flex; gap: 0.5rem; justify-content: flex-end; align-self: end; flex-wrap: wrap; }
-.hero__sites li { border: 1px solid var(--rule); padding: 0.25rem 0.5rem; background: var(--paper); }
+.hero__sites { display: flex; gap: 0.5rem; justify-content: flex-start; flex-wrap: wrap; margin-top: 0.4rem; min-height: 2.1rem; }
+.hero__sites li { border: 1px solid var(--rule); padding: 0.25rem 0.5rem; background: var(--paper); cursor: pointer; white-space: nowrap;
+  transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+  animation: chipIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) both, chipPulse 7.2s linear infinite;
+  animation-delay: calc(var(--i, 0) * 90ms + 500ms), calc(var(--i, 0) * 1.2s + 1.6s); }
+.hero__sites li:hover, .hero__sites li:focus-visible, .hero__sites li.is-open { background: var(--red); color: var(--on-red); border-color: var(--red); transform: translateY(-3px); animation: none; }
+@keyframes chipIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* a signal travels across the six markets, one chip at a time */
+@keyframes chipPulse { 0%, 14%, 100% { border-color: var(--rule); color: var(--ink); box-shadow: none; } 4% { border-color: var(--red); color: var(--red); box-shadow: 0 0 16px rgba(255, 18, 64, 0.5); } }
+@media (prefers-reduced-motion: reduce) { .hero__sites li { animation: none; transition: none; } }
+
+/* profile headline: letters decode in, words re-scramble under the pointer */
+.decode .w { display: inline-block; white-space: nowrap; }
+.decode .g { display: inline-block; }
+.decode .g.is-noise { color: var(--red); }
 .hero__hint { color: var(--ink-soft); }
 html:not(.hx-on) .hero__hint { display: none; }
 
@@ -281,6 +294,9 @@ html.intro-on { overflow: hidden; }
   html.hx-on .hx__pin { position: sticky; top: var(--top-h, 68px); height: calc(100svh - var(--top-h, 68px)); overflow: clip; }
   html.hx-on .hx__track { display: flex; height: 100%; width: max-content; will-change: transform; }
   html.hx-on .hero { flex: none; width: 100vw; height: 100%; min-height: 0; }
+  /* the letters take whatever height is left, so the foot never gets pushed out */
+  html.hx-on .hero__inner { grid-template-rows: auto minmax(0, 1fr) auto auto; align-content: stretch; }
+  html.hx-on .hero__stage { min-height: 0; margin: 0; }
   html.hx-on .sec { flex: none; display: flex; height: 100%; padding: 0; border-left: 1px solid var(--rule); }
   html.hx-on .sec__head { flex: none; flex-direction: column; align-items: center; justify-content: space-between; gap: 1rem; margin: 0; padding: 1.4rem 1rem; border-bottom: 0; border-right: 1px solid var(--rule); }
   html.hx-on .display { writing-mode: vertical-rl; transform: rotate(180deg); font-size: min(6.6svh, 4.4rem); line-height: 1; white-space: nowrap; }
@@ -329,7 +345,6 @@ html.intro-on { overflow: hidden; }
   html.hx-on .sec__head { padding: 1rem 0.5rem; }
   html.hx-on .display { font-size: min(6svh, 3.4rem); }
   html.hx-on .hero__inner { align-content: space-between; padding-bottom: 1.2rem; }
-  html.hx-on .hero__stage { min-height: 38svh; margin: 0; }
   html.hx-on .about__grid { display: flex; align-items: center; width: auto; gap: 9vw; padding: 1.4rem 7vw; }
   html.hx-on .about__grid > * { flex: none; width: 78vw; max-width: 34rem; }
   html.hx-on .about__big { font-size: min(2.1rem, 5.2svh); }
@@ -366,6 +381,7 @@ html.intro-on { overflow: hidden; }
   .cell__list--cols { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 600px) {
+  html.hx-on .hero__inner { grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; }
   .top__name { font-size: 0.75rem; }
   .hero { min-height: 0; }
   .hero__inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "role" "where" "cipher" "lede" "sites" "hint"; align-content: start; gap: 0.5rem; padding-bottom: 2.5rem; }
