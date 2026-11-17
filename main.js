@@ -648,25 +648,52 @@
     }
     const request = () => { if (!hraf) hraf = requestAnimationFrame(update); };
 
-    /* when scrolling stops close to a full-screen panel, settle exactly on it so nothing is cut off */
-    let settleTimer = 0, touching = false;
+    /* when scrolling stops, settle exactly on a panel so nothing is cut off.
+       Large screens: only the full-screen panels, and only when close.
+       Narrow screens: every panel is one screen wide, so always settle, and a
+       swipe of more than 15% of the screen turns the page in that direction. */
+    const narrowQuery = window.matchMedia('(max-width: 1023px)');
+    const WIDE_STOPS = '.hero, .folio, .cells, .contact';
+    const NARROW_STOPS = '.hero, #about, #about .about__grid > :nth-child(n+2), .folio, .cells, #toolkit, #toolkit .kit__grid > :nth-child(n+2), .contact';
+    let settleTimer = 0, touching = false, anchorS = 0;
     function settle() {
       if (!hxActive || touching) return;
       const s0 = Math.max(0, Math.min(total, topH - hx.getBoundingClientRect().top));
+      const top = hx.getBoundingClientRect().top + window.scrollY - topH;
+      const go = (to) => window.scrollTo({ top: top + to, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
+
+      if (narrowQuery.matches) {
+        /* every stop in scroll units: one per panel, plus one per folio sheet inside the hold */
+        const set = new Set();
+        track.querySelectorAll(NARROW_STOPS).forEach((el) => {
+          const ax = Math.max(0, Math.min(dist, xOf(el)));
+          if (Math.abs(ax - folioX) < 2) for (let k = 0; k <= 3; k++) set.add(Math.round(folioX + (hold * k) / 3));
+          else set.add(Math.round(scrollFor(ax)));
+        });
+        const stops = [...set].sort((m, n) => m - n);
+        let target = stops.reduce((best, v) => (Math.abs(v - s0) < Math.abs(best - s0) ? v : best), stops[0]);
+        const moved = s0 - anchorS;
+        if (target === anchorS && Math.abs(moved) > pin.clientWidth * 0.15) {
+          const next = moved > 0 ? stops.find((v) => v > anchorS + 1) : [...stops].reverse().find((v) => v < anchorS - 1);
+          if (next !== undefined) target = next;
+        }
+        anchorS = target;
+        if (Math.abs(target - s0) > 1) go(target);
+        return;
+      }
+
       if (s0 > folioX && s0 < folioX + hold) return;            /* inside the folio hold: already aligned */
       const x = s0 <= folioX ? s0 : s0 - hold;
       const near = pin.clientWidth * 0.22;
       let best = null;
-      track.querySelectorAll('.hero, .folio, .cells, .contact').forEach((el) => {
+      track.querySelectorAll(WIDE_STOPS).forEach((el) => {
         const ax = Math.max(0, Math.min(dist, xOf(el)));
         const d = Math.abs(ax - x);
         if (d > 1 && d < near && (!best || d < best.d)) best = { d, ax };
       });
       if (!best) return;
-      const top = hx.getBoundingClientRect().top + window.scrollY - topH;
       /* arriving at the folio from the right means its sheets are already gone: land after the hold */
-      const target = best.ax === folioX && s0 > folioX ? best.ax + hold : scrollFor(best.ax);
-      window.scrollTo({ top: top + target, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
+      go(best.ax === folioX && s0 > folioX ? best.ax + hold : scrollFor(best.ax));
     }
     window.addEventListener('scroll', () => { clearTimeout(settleTimer); settleTimer = setTimeout(settle, 220); }, { passive: true });
     window.addEventListener('touchstart', () => { touching = true; clearTimeout(settleTimer); }, { passive: true });
