@@ -212,6 +212,7 @@
           const L = w.len, span = 2 * L - 1;
           for (let j = 0; j < L; j++) {
             const c = w.chars[j];
+            if (c.ch === ' ') continue;   /* spaces stay spaces */
             const noisy = s > j / span && s < (L + j) / span;
             if (noisy) {
               if (!c.noise || refresh) c.node.textContent = ALPHABET[(Math.random() * ALPHABET.length) | 0];
@@ -753,7 +754,7 @@
       intro.className = 'intro';
       intro.innerHTML = `
         <svg class="intro__rings" aria-hidden="true" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor"><circle r="150"/><circle r="250"/><circle r="390"/><circle r="560"/><rect x="-330" y="-330" width="660" height="660" transform="rotate(45)"/></svg>
-        <div class="intro__mark mono"><span class="intro__name" data-scramble data-scramble-lines>Fran|Bilbao</span><span class="intro__bar"><i></i></span></div>
+        <div class="intro__mark mono"><span class="intro__name" data-scramble data-scramble-lines>Francisco José|Bilbao</span><span class="intro__bar"><i></i></span></div>
         <button type="button" class="hold intro__hold mono"><span class="hold__label">${es ? 'Mantené apretado' : 'Click & hold'}</span><span class="hold__bar" aria-hidden="true"><i></i></span></button>
         <button type="button" class="intro__skip mono">${es ? 'Saltar' : 'Skip'}</button>`;
       document.body.appendChild(intro);
@@ -761,7 +762,7 @@
       heroPrime();
       const nameEl = intro.querySelector('.intro__name');
       const scr = new Scramble(nameEl);
-      nameEl.setAttribute('aria-label', 'Fran Bilbao');
+      nameEl.setAttribute('aria-label', 'Francisco José Bilbao');
       const btn = intro.querySelector('.intro__hold');
       btn.setAttribute('aria-label', es ? 'Mantené apretado para entrar' : 'Click and hold to enter');
       const bars = intro.querySelectorAll('.hold__bar i, .intro__bar i');
