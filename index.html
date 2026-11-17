@@ -21,7 +21,7 @@
   <nav class="top__nav mono" aria-label="Sections">
     <a href="#about" data-scramble data-i18n="nav.about">About</a>
     <a href="#experience" data-scramble data-i18n="nav.experience">+ Experience</a>
-    <a href="#toolkit" data-scramble data-i18n="nav.toolkit">Toolkit</a>
+    <a href="#toolkit" data-scramble data-i18n="nav.toolkit">Skills</a>
     <a href="#contact" data-scramble data-i18n="nav.contact">Contact</a>
   </nav>
   <div class="top__tools mono">
@@ -182,7 +182,7 @@
 <section class="sec kit" id="toolkit" aria-labelledby="kit-title">
   <div class="sec__head">
     <p class="label mono">03</p>
-    <h2 id="kit-title" class="display" data-i18n="kit.title">Toolkit</h2>
+    <h2 id="kit-title" class="display" data-i18n="kit.title">Skills</h2>
   </div>
 
   <div class="ticker mono" aria-hidden="true">
@@ -192,39 +192,36 @@
     </div>
   </div>
 
-  <div class="posters" data-posters>
-    <div class="posters__stage">
-      <article class="poster poster--a">
-        <p class="poster__idx mono"><span>01/03</span><span data-i18n="kit.g1">Analytical &amp; technical</span></p>
-        <h3 class="poster__word" data-i18n="kit.p1">Data.</h3>
-        <ul class="poster__list mono">
-          <li>SQL</li><li>BigQuery</li><li>Python</li><li>Tableau</li>
-          <li data-i18n="kit.rca">Data analysis &amp; root-cause investigation</li>
-          <li data-i18n="kit.kpi">KPI reporting &amp; dashboards</li>
-          <li data-i18n="kit.pay">Payments processing &amp; routing</li>
-          <li data-i18n="kit.fin">Financial analysis</li>
-        </ul>
-      </article>
-      <article class="poster poster--b">
-        <p class="poster__idx mono"><span>02/03</span><span data-i18n="kit.g2">AI &amp; automation</span></p>
-        <h3 class="poster__word" data-i18n="kit.p2">AI.</h3>
-        <ul class="poster__list mono">
-          <li>Claude (Anthropic)</li><li>n8n</li><li>Fury</li>
-          <li class="poster__note" data-i18n="kit.g2note">Used to analyze operational data, automate recurring workflows and surface insights for stakeholders.</li>
-        </ul>
-      </article>
-      <article class="poster poster--c">
-        <p class="poster__idx mono"><span>03/03</span><span data-i18n="kit.g3">Ways of working</span></p>
-        <h3 class="poster__word" data-i18n="kit.p3">Team.</h3>
-        <ul class="poster__list mono">
-          <li data-i18n="kit.w1">Cross-team coordination</li>
-          <li data-i18n="kit.w2">Process optimization</li>
-          <li data-i18n="kit.w3">Incident triage &amp; escalation</li>
-          <li data-i18n="kit.w4">Team development</li>
-        </ul>
-      </article>
+  <div class="kit__grid">
+    <div>
+      <h3 class="label mono" data-i18n="kit.g1">Analytical &amp; technical</h3>
+      <ul class="kit__list">
+        <li>SQL</li><li>BigQuery</li><li>Python</li><li>Tableau</li>
+        <li data-i18n="kit.rca">Data analysis &amp; root-cause investigation</li>
+        <li data-i18n="kit.kpi">KPI reporting &amp; dashboards</li>
+        <li data-i18n="kit.pay">Payments/transaction processing &amp; routing</li>
+        <li data-i18n="kit.fin">Financial analysis</li>
+      </ul>
     </div>
-    <button type="button" class="posters__next mono" data-i18n="kit.next">Next poster →</button>
+    <div>
+      <h3 class="label mono" data-i18n="kit.g2">AI &amp; automation tools</h3>
+      <ul class="kit__list">
+        <li>Claude (Anthropic)</li><li>n8n</li><li>Fury</li>
+      </ul>
+      <p class="kit__note" data-i18n="kit.g2note">Used to analyze operational data, automate recurring workflows, and surface actionable insights for stakeholders.</p>
+    </div>
+    <div>
+      <h3 class="label mono" data-i18n="kit.g3">Professional</h3>
+      <ul class="kit__list">
+        <li data-i18n="kit.w1">Cross-team coordination</li>
+        <li data-i18n="kit.w2">Process optimization</li>
+        <li>CRM</li>
+        <li data-i18n="kit.w4">Team development &amp; leadership</li>
+        <li data-i18n="kit.w5">Communication</li>
+        <li data-i18n="kit.w6">Adaptability</li>
+        <li data-i18n="kit.w7">Initiative</li>
+      </ul>
+    </div>
   </div>
 </section>
 

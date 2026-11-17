@@ -13,7 +13,7 @@
     name: 'Francisco José Bilbao',
     'nav.about': 'Perfil',
     'nav.experience': '+ Experiencia',
-    'nav.toolkit': 'Herramientas',
+    'nav.toolkit': 'Skills',
     'nav.contact': 'Contacto',
     pdf: 'PDF ↓',
     'hero.role': 'Analista de Pricing & Routing Operations',
@@ -56,19 +56,18 @@
     'pc.dates': 'Mar 2021 — Feb 2022',
     'pc.role': 'Ejecutivo de Cuentas',
     'pc.b1': 'Gestioné una cartera de cuentas de clientes en el área de cobranzas — una primera base en operaciones financieras y comunicación profesional con clientes.',
-    'kit.title': 'Herramientas',
+    'kit.title': 'Skills',
     'kit.g1': 'Analíticas y técnicas',
     'kit.rca': 'Análisis de datos e investigación de causa raíz',
     'kit.kpi': 'Reportes de KPIs y dashboards',
-    'kit.pay': 'Procesamiento y ruteo de pagos',
+    'kit.pay': 'Procesamiento y ruteo de pagos/transacciones',
     'kit.fin': 'Análisis financiero',
-    'kit.g2': 'IA y automatización',
+    'kit.g2': 'Herramientas de IA y automatización',
     'kit.g2note': 'Las uso para analizar datos operativos, automatizar flujos recurrentes y acercar hallazgos a los stakeholders.',
-    'kit.g3': 'Forma de trabajo',
-    'kit.p1': 'Datos.',
-    'kit.p2': 'IA.',
-    'kit.p3': 'Equipo.',
-    'kit.next': 'Siguiente póster →',
+    'kit.g3': 'Profesionales',
+    'kit.w5': 'Comunicación',
+    'kit.w6': 'Adaptabilidad',
+    'kit.w7': 'Iniciativa',
     'fo.e.when': 'Sep 2025 — Actualidad',
     'fo.e.a': 'Pricing &',
     'fo.e.b': 'Routing.',
@@ -83,8 +82,7 @@
     'fo.0.sub': 'Parabens Créditos S.A. — una cartera de clientes en cobranzas. Scrolleá para seguir el recorrido.',
     'kit.w1': 'Coordinación entre equipos',
     'kit.w2': 'Optimización de procesos',
-    'kit.w3': 'Triage y escalamiento de incidentes',
-    'kit.w4': 'Desarrollo de equipo',
+    'kit.w4': 'Desarrollo de equipo y liderazgo',
     'contact.title': 'Contacto',
     'foot.top': 'Volver arriba ↑',
   };
@@ -284,7 +282,7 @@
      Scroll reveal
   ------------------------------------------------------------------ */
   {
-    const targets = document.querySelectorAll('.sec__head, .about__grid > *, .cell, .ticker, .posters, .contact__links li');
+    const targets = document.querySelectorAll('.sec__head, .about__grid > *, .cell, .ticker, .kit__grid > div, .contact__links li');
     const seen = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); seen.unobserve(e.target); }
     }, { rootMargin: '0px 0px -8% 0px' });
@@ -401,7 +399,7 @@
       if (!hxActive || !ev.target.matches(':focus-visible')) return;
       const r = ev.target.getBoundingClientRect();
       if (r.left < 0 || r.right > window.innerWidth) {
-        const panel = ev.target.closest('.poster, .cell, .folio, .sec, .hero') || ev.target;
+        const panel = ev.target.closest('.cell, .folio, .sec, .hero') || ev.target;
         goTo(panel);
       }
     });
@@ -414,59 +412,6 @@
     setMode();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
     if (hxActive && location.hash) { const el = document.querySelector(location.hash); if (el && track.contains(el)) requestAnimationFrame(() => goTo(el)); }
-  }
-
-  /* ------------------------------------------------------------------
-     Toolkit posters: contained 1800ms change, cubic-bezier(.86,0,.07,1).
-     0-600 out scales to .85; 600-1200 out slides up, in slides up from
-     below (both .85); 1200-1800 in scales back to 1.
-  ------------------------------------------------------------------ */
-  {
-    const root = document.querySelector('[data-posters]');
-    const posters = [...root.querySelectorAll('.poster')];
-    const btn = root.querySelector('.posters__next');
-    const pease = bezierEase(0.86, 0, 0.07, 1);
-    let at = 0, from = 0, praf = 0, plast = 0, pelapsed = 0, running = false;
-    root.classList.add('posters--on');
-    function settle() {
-      posters.forEach((el, i) => {
-        const on = i === at;
-        el.style.transform = '';
-        el.style.visibility = on ? 'visible' : 'hidden';
-        el.style.zIndex = on ? 1 : 0;
-        el.toggleAttribute('aria-hidden', !on);
-        el.inert = !on;
-      });
-      running = false;
-    }
-    function pframe(now) {
-      praf = 0;
-      const dt = plast ? Math.min(100, now - plast) : 0;
-      plast = now;
-      pelapsed += dt;
-      const t = pelapsed;
-      const a = pease(clamp01(t / 600)), b = pease(clamp01((t - 600) / 600)), c = pease(clamp01((t - 1200) / 600));
-      const out = posters[from], inc = posters[at];
-      out.style.transform = `translateY(${-100 * b}%) scale(${1 - 0.15 * a})`;
-      inc.style.transform = `translateY(${100 - 100 * b}%) scale(${0.85 + 0.15 * c})`;
-      if (t >= 1800) { settle(); return; }
-      praf = requestAnimationFrame(pframe);
-    }
-    btn.addEventListener('click', () => {
-      if (praf) cancelAnimationFrame(praf);
-      praf = 0;
-      if (running) settle(); /* restart deliberately from a composed state */
-      from = at;
-      at = (at + 1) % posters.length;
-      if (reduceQuery.matches) { settle(); return; }
-      running = true; pelapsed = 0; plast = 0;
-      posters[at].style.visibility = 'visible';
-      posters[at].style.zIndex = 2;
-      posters[at].style.transform = 'translateY(100%) scale(0.85)';
-      praf = requestAnimationFrame(pframe);
-    });
-    onReduceChange.push(() => { if (reduceQuery.matches && running) { if (praf) cancelAnimationFrame(praf); praf = 0; settle(); } });
-    settle();
   }
 
   /* ------------------------------------------------------------------
