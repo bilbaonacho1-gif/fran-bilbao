@@ -20,7 +20,8 @@
     'hero.where': 'Mercado Pago — Buenos Aires, Argentina',
     'hero.h1': 'Francisco José Bilbao — Analista de Pricing & Routing Operations',
     'hero.lede': 'Investigo de punta a punta los problemas de procesamiento de pagos en seis mercados de LATAM, y convierto grandes volúmenes de datos transaccionales en decisiones accionables para los equipos.',
-    'hero.hint': 'Mové el cursor para pintar · scrolleá para avanzar →',
+    'hero.hint': 'Scrolleá para avanzar →',
+    'hero.holdAria': 'Mantené apretado para dispersar las esferas y formar la siguiente palabra',
     'about.title': 'Perfil',
     'about.big': 'Analista de operaciones de pagos y pricing. Trabajo donde se cruzan el router, los adquirentes y los datos.',
     'about.p1': 'Experiencia práctica investigando de punta a punta problemas de procesamiento de transacciones, coordinando con equipos internos y convirtiendo grandes volúmenes de datos en reportes accionables.',
@@ -229,6 +230,7 @@
   let hxActive = false;
   let folioApply = () => {};
   let hxMeasure = () => {};
+  let heroRelang = () => {};
 
   const scramblers = new Map();
   document.querySelectorAll('[data-scramble]').forEach((el) => scramblers.set(el, new Scramble(el)));
@@ -245,6 +247,8 @@
       : el.textContent;
     if (el.dataset.i18nAria) EN_ARIA[el.dataset.i18nAria] = el.getAttribute('aria-label');
   }
+  const ariaEls = [...document.querySelectorAll('[data-i18n-aria]')];
+  for (const el of ariaEls) EN_ARIA[el.dataset.i18nAria] = el.getAttribute('aria-label');
   const EN_TITLE = document.title;
   const ES_TITLE = 'Francisco Bilbao — Analista de Pricing & Routing Operations';
 
@@ -262,9 +266,11 @@
       }
       if (s) s.build(text); else el.textContent = text;
     }
+    for (const el of ariaEls) el.setAttribute('aria-label', (lang === 'es' ? ES : EN_ARIA)[el.dataset.i18nAria]);
     document.querySelectorAll('.lang__btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     try { localStorage.setItem('lang', lang); } catch (e) { /* storage unavailable */ }
     hxMeasure();
+    heroRelang();
   }
   document.querySelectorAll('.lang__btn').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
   let startLang = 'en';
@@ -464,185 +470,200 @@
   }
 
   /* ------------------------------------------------------------------
-     Hero: giant outlined letters that the pointer paints with red light.
-     A low-res trail buffer fades every frame; aged stamps along the
-     pointer path are added to it, and the trail masks a red fill.
+     Hero: extruded chrome letters (hero3d.js). A warm light follows the
+     pointer and the letters under it tumble. Click & hold spins them
+     away; releasing after a full hold brings in the next word.
   ------------------------------------------------------------------ */
-  const hero = document.querySelector('.hero');
-  const canvas = hero.querySelector('.hero__canvas');
-  const ctx = canvas.getContext('2d');
-  const WORD = 'FRAN';
-  const TRAIL_W = 216;
-  const MAX_POINTS = 400;
-  const LIFE = 2000;
-
-  const css = getComputedStyle(document.documentElement);
-  const COLORS = {
-    panel: css.getPropertyValue('--panel').trim() || '#e7e6e0',
-    ink: css.getPropertyValue('--ink').trim() || '#14203a',
-    red: css.getPropertyValue('--red').trim() || '#b5140f',
-  };
-
-  const trail = document.createElement('canvas');
-  const tctx = trail.getContext('2d');
-  const paint = document.createElement('canvas');
-  const pctx = paint.getContext('2d');
-
-  const stamp = document.createElement('canvas');
-  stamp.width = stamp.height = 32;
   {
-    const s = stamp.getContext('2d');
-    const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
-    [[0, 1], [0.2, 0.8], [0.4, 0.5], [0.6, 0.25], [0.8, 0.08], [1, 0]].forEach(([r, a]) => g.addColorStop(r, `rgba(255,255,255,${a})`));
-    s.fillStyle = g;
-    s.fillRect(0, 0, 32, 32);
-  }
+    const hero = document.querySelector('.hero');
+    const canvas = hero.querySelector('.hero__canvas');
+    const stage = hero.querySelector('.hero__stage');
+    const caption = hero.querySelector('.hero__word');
+    const holdBtn = hero.querySelector('.hold');
+    const holdLabel = holdBtn.querySelector('.hold__label');
+    const holdBar = holdBtn.querySelector('.hold__bar i');
+    const WORDS = { en: ['FRAN', 'PAYMENTS', 'ROUTING', 'DATA'], es: ['FRAN', 'PAGOS', 'ROUTING', 'DATOS'] };
+    const LABELS = { en: ['Click & hold', 'Release'], es: ['Mantené apretado', 'Soltá'] };
+    const HOLD_MS = 1000, BACK_MS = 900;
+    const view = window.Hero3D ? window.Hero3D.create(canvas) : null;
 
-  let W = 0, H = 0, dpr = 1, fontPx = 0, baseY = 0;
-  let points = [];
-  let prev = null;
-  let raf = 0, last = 0, clock = 0, idleFor = 0;
-  let visible = true;
-
-  const stage = hero.querySelector('.hero__stage');
-
-  function layout() {
-    const r = hero.getBoundingClientRect();
-    const sr = stage.getBoundingClientRect();
-    W = Math.max(1, Math.round(r.width));
-    H = Math.max(1, Math.round(r.height));
-    dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = paint.width = Math.round(W * dpr);
-    canvas.height = paint.height = Math.round(H * dpr);
-    trail.width = TRAIL_W;
-    trail.height = Math.max(1, Math.round(TRAIL_W * H / W));
-    /* the word fills the free stage between the labels and the intro */
-    ctx.font = `300 100px "Inter Tight", "Helvetica Neue", Arial, sans-serif`;
-    const m = ctx.measureText(WORD);
-    const cap = 0.72; /* cap height of the face, in em */
-    fontPx = Math.min((W * 0.95) / m.width * 100, (sr.height * 0.96) / cap);
-    baseY = (sr.top - r.top) + sr.height / 2 + fontPx * cap / 2;
-    points = [];
-    prev = null;
-    drawStatic();
-  }
-
-  function setFont(c) {
-    c.font = `300 ${fontPx}px "Inter Tight", "Helvetica Neue", Arial, sans-serif`;
-    c.textAlign = 'center';
-    c.textBaseline = 'alphabetic';
-  }
-
-  function drawLetters(withPaint) {
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    setFont(ctx);
-    ctx.fillStyle = COLORS.panel;
-    ctx.fillText(WORD, W / 2, baseY);
-    if (withPaint) {
-      pctx.setTransform(1, 0, 0, 1, 0, 0);
-      pctx.globalCompositeOperation = 'source-over';
-      pctx.clearRect(0, 0, paint.width, paint.height);
-      pctx.imageSmoothingEnabled = true;
-      pctx.drawImage(trail, 0, 0, paint.width, paint.height);
-      pctx.globalCompositeOperation = 'source-in';
-      pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      setFont(pctx);
-      pctx.fillStyle = COLORS.red;
-      pctx.fillText(WORD, W / 2, baseY);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.drawImage(paint, 0, 0);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = COLORS.ink;
-    ctx.globalAlpha = 0.55;
-    ctx.strokeText(WORD, W / 2, baseY);
-    ctx.globalAlpha = 1;
-  }
-
-  function drawStatic() {
-    tctx.clearRect(0, 0, trail.width, trail.height);
-    drawLetters(false);
-  }
-
-  function frame(now) {
-    raf = 0;
-    const dt = last ? Math.min(100, now - last) : 16.667;
-    last = now;
-    clock += dt; /* own clock: pauses with the loop, so ages never jump */
-
-    /* fade the trail */
-    tctx.globalCompositeOperation = 'destination-out';
-    tctx.fillStyle = `rgba(0,0,0,${1 - Math.pow(0.8, Math.max(0.2, dt / 16.667))})`;
-    tctx.fillRect(0, 0, trail.width, trail.height);
-
-    /* add aged stamps */
-    points = points.filter((p) => clock - p.t <= LIFE);
-    tctx.globalCompositeOperation = 'lighter';
-    for (const p of points) {
-      const e = 1 - (clock - p.t) / LIFE;
-      const s = 0.5 * Math.sin(e * Math.PI) + 0.5;
-      const radius = 0.13 * TRAIL_W * (0.5 + 0.5 * s);
-      tctx.globalAlpha = e * e * 0.1;
-      tctx.drawImage(stamp, p.x * trail.width - radius, p.y * trail.height - radius, radius * 2, radius * 2);
-    }
-    tctx.globalAlpha = 1;
-
-    drawLetters(true);
-
-    idleFor = points.length ? 0 : idleFor + dt;
-    if (idleFor > 700) { drawStatic(); last = 0; return; } /* trail finished: stop rendering */
-    schedule();
-  }
-
-  function schedule() {
-    if (!raf && visible && !document.hidden && !reduceQuery.matches) raf = requestAnimationFrame(frame);
-  }
-
-  function onPointer(ev) {
-    if (reduceQuery.matches) return;
-    const r = hero.getBoundingClientRect();
-    const x = (ev.clientX - r.left) / r.width;
-    const y = (ev.clientY - r.top) / r.height;
-    if (x < 0 || x > 1 || y < 0 || y > 1) { prev = null; return; }
-    if (prev) {
-      const dist = Math.hypot(x - prev.x, y - prev.y);
-      if (dist > 0.001) {
-        const n = Math.ceil(30 * dist);
-        for (let i = 1; i <= n; i++) {
-          const k = i / n;
-          points.push({ x: prev.x + (x - prev.x) * k, y: prev.y + (y - prev.y) * k, t: clock });
-        }
-        if (points.length > MAX_POINTS) points.splice(0, points.length - MAX_POINTS);
-        prev = { x, y };
-      }
+    if (!view) {
+      hero.classList.add('hero--flat');
+      holdBtn.hidden = true;
     } else {
-      prev = { x, y };
+      let W = 1, H = 1;
+      let idx = 0, hold = 0, holding = false, armed = false;
+      let raf = 0, last = 0, clock = 0, visible = true, sinceKick = 0;
+      const light = { x: 0, y: 0, tx: 0, ty: 0, has: false, px: 0, py: 0 };
+      const lang = () => (document.documentElement.lang === 'es' ? 'es' : 'en');
+
+      function layout() {
+        const r = hero.getBoundingClientRect();
+        const sr = stage.getBoundingClientRect();
+        W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
+        view.layout(W, H, Math.min(2, window.devicePixelRatio || 1), { cx: sr.left - r.left + sr.width / 2, cy: sr.top - r.top + sr.height / 2, w: sr.width, h: sr.height });
+        if (!light.has) { light.x = light.tx = W * 0.3; light.y = light.ty = H * 0.4; }
+        draw(0);
+        schedule();
+      }
+      function draw(dt) {
+        clock += dt;
+        const still = reduceQuery.matches;
+        const e = hold * hold * (3 - 2 * hold);
+        if (!light.has && !still) { /* no pointer yet: let the light wander */
+          light.tx = W * (0.5 + 0.34 * Math.sin(clock * 0.0005));
+          light.ty = H * (0.42 + 0.14 * Math.sin(clock * 0.0008 + 1.3));
+        }
+        const follow = still ? 1 : 1 - Math.pow(0.0015, dt / 1000);
+        light.x += (light.tx - light.x) * follow; light.y += (light.ty - light.y) * follow;
+        if (!still && !holding && hold === 0) {
+          sinceKick += dt;
+          if (sinceKick > 2600) { sinceKick = 0; view.kick(idx); }
+        }
+        view.frame(dt, clock * 0.001, idx, e, light, still);
+        caption.style.opacity = e.toFixed(3);
+        caption.style.letterSpacing = (0.62 - 0.3 * e).toFixed(3) + 'em';
+        holdBar.style.transform = `scaleX(${hold.toFixed(3)})`;
+      }
+      function frame(now) {
+        raf = 0;
+        const dt = last ? Math.min(100, now - last) : 16;
+        last = now;
+        if (holding) {
+          hold = Math.min(1, hold + dt / HOLD_MS);
+          if (hold >= 1 && !armed) { armed = true; holdLabel.textContent = LABELS[lang()][1]; }
+        } else if (hold > 0) {
+          hold = Math.max(0, hold - dt / BACK_MS);
+        }
+        draw(dt);
+        schedule();
+      }
+      function schedule() {
+        if (raf || !visible || document.hidden) return;
+        if (reduceQuery.matches && !holding && hold === 0 && Math.abs(light.x - light.tx) < 0.5 && Math.abs(light.y - light.ty) < 0.5) return;
+        raf = requestAnimationFrame(frame);
+      }
+      function setCaption() {
+        const list = WORDS[lang()];
+        caption.textContent = list[(idx + 1) % list.length];
+        holdLabel.textContent = LABELS[lang()][0];
+      }
+      function press() {
+        if (holding) return;
+        holding = true; armed = hold >= 1;
+        holdBtn.classList.add('is-held');
+        if (reduceQuery.matches) { hold = 1; armed = true; holdLabel.textContent = LABELS[lang()][1]; }
+        schedule();
+      }
+      function release() {
+        if (!holding) return;
+        holding = false;
+        holdBtn.classList.remove('is-held');
+        if (armed) { idx = (idx + 1) % WORDS[lang()].length; armed = false; }
+        if (reduceQuery.matches) hold = 0;
+        setCaption();
+        last = 0;
+        if (reduceQuery.matches) draw(0);
+        schedule();
+      }
+
+      hero.addEventListener('pointermove', (ev) => {
+        const r = hero.getBoundingClientRect();
+        const x = ev.clientX - r.left, y = ev.clientY - r.top;
+        if (light.has && !reduceQuery.matches) view.nudge(idx, x, y, x - light.px, y - light.py);
+        light.px = x; light.py = y; light.tx = x; light.ty = y; light.has = true;
+        schedule();
+      }, { passive: true });
+      hero.addEventListener('pointerleave', (ev) => { if (ev.pointerType !== 'mouse') light.has = false; });
+      hero.addEventListener('pointerdown', (ev) => {
+        if (ev.pointerType !== 'mouse' || ev.button !== 0 || ev.target.closest('a, button')) return;
+        press();
+      });
+      holdBtn.addEventListener('pointerdown', (ev) => { if (ev.button === 0) { holdBtn.setPointerCapture(ev.pointerId); press(); } });
+      holdBtn.addEventListener('contextmenu', (ev) => ev.preventDefault());
+      holdBtn.addEventListener('keydown', (ev) => {
+        if (ev.key !== ' ' && ev.key !== 'Enter') return;
+        ev.preventDefault();
+        if (!ev.repeat) press();
+      });
+      holdBtn.addEventListener('keyup', (ev) => { if (ev.key === ' ' || ev.key === 'Enter') release(); });
+      holdBtn.addEventListener('blur', release);
+      window.addEventListener('pointerup', release);
+      window.addEventListener('pointercancel', release);
+
+      new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; last = 0; schedule(); }).observe(hero);
+      document.addEventListener('visibilitychange', () => { last = 0; if (document.hidden) release(); schedule(); });
+      onReduceChange.push(() => { release(); hold = 0; last = 0; draw(0); schedule(); });
+      let timer = 0;
+      new ResizeObserver(() => { clearTimeout(timer); timer = setTimeout(layout, 100); }).observe(hero);
+      heroRelang = () => { idx = 0; view.setWords(WORDS[lang()]); setCaption(); layout(); };
+      view.setWords(WORDS[lang()]);
+      setCaption();
+      layout();
     }
-    idleFor = 0;
-    schedule();
   }
 
-  hero.addEventListener('pointermove', onPointer, { passive: true });
-  hero.addEventListener('pointerleave', () => { prev = null; }, { passive: true });
-
-  const io = new IntersectionObserver(([entry]) => {
-    visible = entry.isIntersecting;
-    if (visible) { last = 0; if (points.length) schedule(); } else if (raf) { cancelAnimationFrame(raf); raf = 0; }
-  });
-  io.observe(hero);
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { if (raf) { cancelAnimationFrame(raf); raf = 0; } } else { last = 0; if (points.length) schedule(); }
-  });
-  onReduceChange.push(() => {
-    if (reduceQuery.matches) { if (raf) { cancelAnimationFrame(raf); raf = 0; } points = []; prev = null; drawStatic(); }
-  });
-
-  let resizeTimer = 0;
-  new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = setTimeout(layout, 80); }).observe(hero);
-  layout();
-  if (document.fonts && document.fonts.load) {
-    document.fonts.load('300 100px "Inter Tight"').then(layout).catch(() => {});
+  /* ------------------------------------------------------------------
+     Intro: a framed mark that scrambles in. Hold to enter (or skip).
+     Shown once per browser session; never with reduced motion.
+  ------------------------------------------------------------------ */
+  {
+    let seen = false;
+    try { seen = sessionStorage.getItem('intro') === '1'; } catch (e) { seen = false; }
+    if (!seen && !reduceQuery.matches) {
+      const es = document.documentElement.lang === 'es';
+      const intro = document.createElement('div');
+      intro.className = 'intro';
+      intro.innerHTML = `
+        <svg class="intro__rings" aria-hidden="true" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor"><circle r="150"/><circle r="250"/><circle r="390"/><circle r="560"/><rect x="-330" y="-330" width="660" height="660" transform="rotate(45)"/></svg>
+        <div class="intro__mark mono"><span class="intro__name" data-scramble data-scramble-lines>Fran|Bilbao</span><span class="intro__bar"><i></i></span></div>
+        <button type="button" class="hold intro__hold mono"><span class="hold__label">${es ? 'Mantené apretado' : 'Click & hold'}</span><span class="hold__bar" aria-hidden="true"><i></i></span></button>
+        <button type="button" class="intro__skip mono">${es ? 'Saltar' : 'Skip'}</button>`;
+      document.body.appendChild(intro);
+      document.documentElement.classList.add('intro-on');
+      const nameEl = intro.querySelector('.intro__name');
+      const scr = new Scramble(nameEl);
+      nameEl.setAttribute('aria-label', 'Fran Bilbao');
+      const btn = intro.querySelector('.intro__hold');
+      btn.setAttribute('aria-label', es ? 'Mantené apretado para entrar' : 'Click and hold to enter');
+      const bars = intro.querySelectorAll('.hold__bar i, .intro__bar i');
+      let h = 0, down = false, iraf = 0, ilast = 0, done = false;
+      const loop = setInterval(() => scr.trigger(), 2200);
+      setTimeout(() => scr.trigger(), 150);
+      function finish() {
+        if (done) return;
+        done = true;
+        clearInterval(loop);
+        if (iraf) cancelAnimationFrame(iraf);
+        try { sessionStorage.setItem('intro', '1'); } catch (e) { /* storage unavailable */ }
+        intro.classList.add('is-out');
+        document.documentElement.classList.remove('intro-on');
+        window.removeEventListener('pointerup', up);
+        document.removeEventListener('keydown', onKey);
+        setTimeout(() => intro.remove(), 900);
+      }
+      function tick(now) {
+        iraf = 0;
+        const dt = ilast ? Math.min(100, now - ilast) : 16;
+        ilast = now;
+        h = Math.max(0, Math.min(1, h + (down ? dt / 900 : -dt / 500)));
+        bars.forEach((b) => { b.style.transform = `scaleX(${h.toFixed(3)})`; });
+        intro.style.setProperty('--h', h.toFixed(3));
+        if (h >= 1) { finish(); return; }
+        if (down || h > 0) iraf = requestAnimationFrame(tick);
+      }
+      const go = () => { down = true; ilast = 0; if (!iraf) iraf = requestAnimationFrame(tick); };
+      const up = () => { down = false; };
+      const onKey = (ev) => { if (ev.key === 'Escape') finish(); };
+      intro.addEventListener('pointerdown', (ev) => { if (ev.button === 0 && !ev.target.closest('.intro__skip')) go(); });
+      window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
+      btn.addEventListener('keydown', (ev) => { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); if (!ev.repeat) go(); } });
+      btn.addEventListener('keyup', (ev) => { if (ev.key === ' ' || ev.key === 'Enter') up(); });
+      btn.addEventListener('contextmenu', (ev) => ev.preventDefault());
+      intro.querySelector('.intro__skip').addEventListener('click', finish);
+      document.addEventListener('keydown', onKey);
+      btn.focus({ preventScroll: true });
+    }
   }
 })();

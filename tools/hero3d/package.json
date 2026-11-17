@@ -1,0 +1,11 @@
+{
+  "name": "hero3d",
+  "private": true,
+  "scripts": {
+    "build": "esbuild hero3d.src.js --bundle --minify --format=iife --global-name=Hero3D --loader:.json=json --outfile=../../hero3d.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "three": "^0.170.0"
+  }
+}
