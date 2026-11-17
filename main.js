@@ -359,6 +359,77 @@
   }
 
   /* ------------------------------------------------------------------
+     Liquid lines, rendered once with a shader at high resolution and
+     handed to CSS as images (the inline SVG stays as the fallback).
+  ------------------------------------------------------------------ */
+  {
+    const make = (rgb, seed) => new Promise((resolve) => {
+      const c = document.createElement('canvas');
+      const scale = Math.min(2, window.devicePixelRatio || 1);
+      c.width = Math.round(1600 * scale); c.height = Math.round(1000 * scale);
+      const gl = c.getContext('webgl', { premultipliedAlpha: false, preserveDrawingBuffer: true, antialias: false });
+      if (!gl) { resolve(null); return; }
+      const vs = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }';
+      const fs = `
+        precision highp float;
+        uniform vec2 uRes; uniform vec3 uCol; uniform float uSeed;
+        vec2 hash(vec2 p){ p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return -1.0 + 2.0 * fract(sin(p) * 43758.5453123); }
+        float noise(vec2 p){
+          vec2 i = floor(p), f = fract(p);
+          vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+          return mix(mix(dot(hash(i), f), dot(hash(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0)), u.x),
+                     mix(dot(hash(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0)), dot(hash(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0)), u.x), u.y);
+        }
+        float fbm(vec2 p){ return 0.62 * noise(p) + 0.26 * noise(p * 2.03 + 7.1) + 0.12 * noise(p * 4.1 + 3.3); }
+        void main(){
+          vec2 uv = gl_FragCoord.xy / uRes.y;
+          vec2 p = uv * vec2(1.25, 2.1) + uSeed;
+          p += 0.55 * vec2(fbm(p * 0.9 + 4.2), fbm(p * 0.9 - 2.7));   /* domain warp: the liquid look */
+          float n = fbm(p * 0.85);
+          float band = n * 15.0;
+          float d = abs(fract(band) - 0.5);                             /* distance to the nearest contour */
+          float w = fwidth(band) * 0.5 + 0.0001;
+          float core = 1.0 - smoothstep(0.02, 0.02 + w * 2.0 + 0.05, d);
+          float glow = 1.0 - smoothstep(0.0, 0.42, d);
+          float keep = step(0.5, fract(floor(band) * 0.5 + 0.25));      /* every other contour, so lines stay sparse */
+          float a = (core * 0.6 + glow * glow * 0.22) * keep;
+          gl_FragColor = vec4(uCol + core * 0.25, a);
+        }`;
+      gl.getExtension('OES_standard_derivatives');
+      const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+      const pr = gl.createProgram();
+      gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs));
+      gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, '#extension GL_OES_standard_derivatives : enable\n' + fs));
+      gl.linkProgram(pr);
+      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { resolve(null); return; }
+      gl.useProgram(pr);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(pr, 'p');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform2f(gl.getUniformLocation(pr, 'uRes'), c.width, c.height);
+      gl.uniform3f(gl.getUniformLocation(pr, 'uCol'), rgb[0], rgb[1], rgb[2]);
+      gl.uniform1f(gl.getUniformLocation(pr, 'uSeed'), seed);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      c.toBlob((blob) => {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+        resolve(blob ? URL.createObjectURL(blob) : null);
+      }, 'image/png');
+    });
+    const apply = async () => {
+      const [red, blue] = await Promise.all([make([1.0, 0.07, 0.25], 3.7), make([0.2, 0.62, 1.0], 11.3)]);
+      const root = document.documentElement.style;
+      if (red) root.setProperty('--liquid-lines', `url("${red}")`);
+      if (blue) root.setProperty('--liquid-lines-blue', `url("${blue}")`);
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(apply, { timeout: 800 }); else setTimeout(apply, 60);
+  }
+
+  /* ------------------------------------------------------------------
      Liquid surfaces: the glowing lines drift a little under the pointer
   ------------------------------------------------------------------ */
   {
