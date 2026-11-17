@@ -387,7 +387,7 @@
           float d = abs(fract(band) - 0.5);
           float w = fwidth(band) + 0.00001;
           float line = 1.0 - smoothstep(w * 0.45, w * 1.35, d);      /* an even hairline per contour */
-          gl_FragColor = vec4(0.62, 0.8, 1.0, line);
+          gl_FragColor = vec4(0.92, 0.96, 1.0, line);   /* near-white: works over blue, green and red */
         }`;
       const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
       const pr = gl.createProgram();

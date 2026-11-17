@@ -205,8 +205,8 @@ html.intro-on { overflow: hidden; }
 .posters--on .posters__stage { position: relative; overflow: hidden; background: #171615; }
 .posters--on .cell { position: absolute; top: 0; left: 0; right: 0; min-height: 100%; border: 0; padding: clamp(1.2rem, 3vw, 2.6rem); padding-bottom: 6rem; will-change: transform; }
 .posters--on .cell { background: radial-gradient(110% 120% at 18% 0%, #17336e 0%, #0e2250 42%, #081530 100%); color: var(--on-color); --acc: #8fc4ff; --soft: color-mix(in srgb, var(--on-color) 66%, transparent); }
-.posters--on .cell:nth-child(2) { background: radial-gradient(110% 120% at 85% 10%, #1a3a7c 0%, #10275a 42%, #091736 100%); }
-.posters--on .cell:nth-child(3) { background: radial-gradient(110% 120% at 50% 100%, #142d63 0%, #0c1e48 42%, #07122b 100%); }
+.posters--on .cell:nth-child(2) { background: radial-gradient(110% 120% at 85% 10%, #1c5a34 0%, #103c22 42%, #071d11 100%); --acc: #c5f04a; }
+.posters--on .cell:nth-child(3) { background: radial-gradient(110% 120% at 50% 100%, #7a1024 0%, #4a0915 42%, #1f0308 100%); --acc: #ff7d93; }
 .posters--on .cell__dates, .posters--on .cell__list li::before { color: var(--acc); }
 .posters--on .cell__org, .posters--on .steps__when { color: var(--soft); }
 .posters--on .steps__when span { color: inherit; }
@@ -225,19 +225,19 @@ html.intro-on { overflow: hidden; }
 .folio__frame { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 .folio__page { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 1rem; padding: 6rem calc(var(--gutter) + 0.5rem) clamp(1.6rem, 4vw, 3rem); }
 .folio__sheet { inset: -1rem; padding: 7rem calc(var(--gutter) + 1.5rem) clamp(2.6rem, 5vw, 4rem); transform-origin: left top; will-change: transform; }
-.folio__end { background: radial-gradient(110% 120% at 20% 100%, #1a3a7c 0%, #10275a 42%, #091736 100%); color: var(--on-color); }
-.folio__sheet--a { background: radial-gradient(110% 120% at 15% 0%, #142d63 0%, #0c1e48 42%, #07122b 100%); color: var(--on-color); z-index: 3; }
-.folio__sheet--b { background: radial-gradient(110% 120% at 85% 0%, #1c3f86 0%, #112a60 42%, #0a1a3c 100%); color: var(--on-color); z-index: 2; }
-.folio__sheet--c { background: radial-gradient(110% 120% at 50% 50%, #17336e 0%, #0e2250 42%, #081530 100%); color: var(--on-color); z-index: 1; }
+.folio__end { background: radial-gradient(110% 120% at 20% 100%, #17336e 0%, #0e2250 42%, #081530 100%); color: var(--on-color); --acc: #8fc4ff; }
+.folio__sheet--a { --acc: #8fc4ff; background: radial-gradient(110% 120% at 15% 0%, #17336e 0%, #0e2250 42%, #081530 100%); color: var(--on-color); z-index: 3; }
+.folio__sheet--b { --acc: #c5f04a; background: radial-gradient(110% 120% at 85% 0%, #1c5a34 0%, #103c22 42%, #071d11 100%); color: var(--on-color); z-index: 2; }
+.folio__sheet--c { --acc: #ff7d93; background: radial-gradient(110% 120% at 50% 50%, #7a1024 0%, #4a0915 42%, #1f0308 100%); color: var(--on-color); z-index: 1; }
 .folio__idx { display: flex; justify-content: space-between; gap: 1rem; position: relative; }
 .folio__h { position: relative; align-self: center; font-size: clamp(2.9rem, 12.2vw, 12.5rem); font-weight: 800; line-height: 0.86; letter-spacing: -0.05em; text-transform: uppercase; }
 .folio__h span { display: block; white-space: nowrap; }
 .folio__h span:first-child { font-weight: 250; }
-.folio__h span:first-child { color: #8fc4ff; }
-.folio__star { color: #8fc4ff; }
+.folio__h span:first-child { color: var(--acc, #8fc4ff); }
+.folio__star { color: var(--acc, #8fc4ff); }
 .folio__sub { position: relative; max-width: 30rem; font-size: clamp(1rem, 1.5vw, 1.25rem); line-height: 1.35; }
 .folio__star { position: absolute; right: 4%; bottom: -14%; font-size: clamp(14rem, 38vw, 36rem); line-height: 1; font-weight: 300; pointer-events: none; }
-.folio__ghost { position: absolute; right: 2%; top: 50%; transform: translateY(-50%); font-size: clamp(18rem, 60vw, 56rem); line-height: 0.8; font-weight: 300; color: transparent; -webkit-text-stroke: 1px rgba(143, 196, 255, 0.35); pointer-events: none; }
+.folio__ghost { position: absolute; right: 2%; top: 50%; transform: translateY(-50%); font-size: clamp(18rem, 60vw, 56rem); line-height: 0.8; font-weight: 300; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--acc, #8fc4ff) 40%, transparent); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .folio { height: 100svh; }
   .folio__sheet { display: none; }
