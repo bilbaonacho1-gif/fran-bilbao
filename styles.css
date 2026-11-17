@@ -30,12 +30,15 @@
 }
 
 :root {
-  --paper: #f0f0ec;
-  --panel: #e7e6e0;
-  --ink: #14203a;
-  --ink-soft: #4a5368;
-  --rule: #14203a;
-  --red: #b5140f;
+  --paper: #252321;
+  --panel: #33302d;
+  --ink: #efe9e2;
+  --ink-soft: #a69e95;
+  --rule: #6a635c;
+  --red: #ff4f3a;
+  --navy: #1b2f5c;
+  --on-color: #f6f1ea;
+  color-scheme: dark;
   --sans: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --hand: "Nothing You Could Do", "Bradley Hand", "Segoe Script", cursive;
@@ -160,8 +163,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .posters { display: grid; gap: 1rem; }
 .posters__stage { display: grid; gap: 1rem; }
 .poster { position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 1rem; padding: clamp(1rem, 3vw, 2.4rem); min-height: 22rem; overflow: hidden; }
-.poster--a { background: var(--ink); color: var(--paper); --chip: var(--ink); }
-.poster--b { background: var(--red); color: var(--paper); --chip: var(--red); }
+.poster--a { background: var(--navy); color: var(--on-color); --chip: var(--navy); }
+.poster--b { background: #c8281a; color: var(--on-color); --chip: #c8281a; }
 .poster--c { background: var(--panel); color: var(--ink); --chip: var(--panel); }
 .poster__idx { display: flex; justify-content: space-between; gap: 1rem; }
 .poster__word { align-self: center; justify-self: center; font-size: clamp(4.5rem, 19vw, 19rem); font-weight: 800; line-height: 0.85; letter-spacing: -0.05em; text-transform: uppercase; transform: rotate(-8deg); white-space: nowrap; }
@@ -172,10 +175,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .poster__list li { border: 1px solid currentColor; background: var(--chip); padding: 0.45rem 0.7rem; font-size: 0.875rem; }
 .poster__list .poster__note { border: 0; padding: 0.45rem 0; text-transform: none; flex-basis: 100%; max-width: 34rem; }
 .posters__next { display: none; }
-.posters--on .posters__stage { position: relative; height: max(34rem, 82svh); background: #0b1226; overflow: hidden; }
+.posters--on .posters__stage { position: relative; height: max(34rem, 82svh); background: #171615; overflow: hidden; }
 .posters--on .poster { position: absolute; inset: 0; min-height: 0; padding-bottom: 5.5rem; will-change: transform; }
-.posters--on .posters__next { display: inline-flex; align-items: center; justify-content: center; position: absolute; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 5; min-height: 48px; padding: 0 1.4rem; background: #fff; color: var(--ink); border-radius: 999px; font-weight: 600; white-space: nowrap; }
-.posters--on .posters__next:hover { background: var(--paper); }
+.posters--on .posters__next { display: inline-flex; align-items: center; justify-content: center; position: absolute; left: 50%; bottom: 1.2rem; transform: translateX(-50%); z-index: 5; min-height: 48px; padding: 0 1.4rem; background: #fff; color: #1c1a19; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+.posters--on .posters__next:hover { background: #e6dfd6; }
 .posters--on { position: relative; }
 
 /* ---------- falling folios ---------- */
@@ -183,16 +186,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .folio__frame { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 .folio__page { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 1rem; padding: 6rem calc(var(--gutter) + 0.5rem) clamp(1.6rem, 4vw, 3rem); }
 .folio__sheet { inset: -1rem; padding: 7rem calc(var(--gutter) + 1.5rem) clamp(2.6rem, 5vw, 4rem); transform-origin: left top; will-change: transform; }
-.folio__end { background: var(--ink); color: var(--paper); }
+.folio__end { background: var(--navy); color: var(--on-color); }
 .folio__sheet--a { background: var(--paper); color: var(--ink); z-index: 3; }
-.folio__sheet--b { background: var(--red); color: var(--paper); z-index: 2; }
+.folio__sheet--b { background: #c8281a; color: var(--on-color); z-index: 2; }
 .folio__sheet--c { background: var(--panel); color: var(--ink); z-index: 1; }
 .folio__idx { display: flex; justify-content: space-between; gap: 1rem; position: relative; }
 .folio__h { position: relative; align-self: center; font-size: clamp(2.9rem, 12.2vw, 12.5rem); font-weight: 800; line-height: 0.86; letter-spacing: -0.05em; text-transform: uppercase; }
 .folio__h span { display: block; white-space: nowrap; }
 .folio__h span:first-child { font-weight: 250; }
 .folio__sheet--a .folio__h span:first-child, .folio__sheet--c .folio__h span:first-child, .folio__end .folio__h span:first-child { color: var(--red); }
-.folio__end .folio__h span:first-child { color: #ff6a5e; }
+.folio__end .folio__h span:first-child { color: #ffb08f; }
 .folio__sub { position: relative; max-width: 30rem; font-size: clamp(1rem, 1.5vw, 1.25rem); line-height: 1.35; }
 .folio__star { position: absolute; right: 4%; bottom: -14%; font-size: clamp(14rem, 38vw, 36rem); line-height: 1; font-weight: 300; pointer-events: none; }
 .folio__ghost { position: absolute; right: 2%; top: 50%; transform: translateY(-50%); font-size: clamp(18rem, 60vw, 56rem); line-height: 0.8; font-weight: 300; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--ink) 45%, transparent); pointer-events: none; }
@@ -272,6 +275,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- print: one clean CV ---------- */
 @media print {
+  :root { --paper: #fff; --panel: #eee; --ink: #14203a; --ink-soft: #4a5368; --rule: #14203a; --red: #b5140f; color-scheme: light; }
   @page { size: A4; margin: 8mm 11mm; }
   body { background: #fff; font-size: 8.6pt; line-height: 1.28; }
   .top, .hero__canvas, .hero__note, .hero__hint, .ticker, .contact__note, .foot, .skip, .cell__code { display: none !important; }
