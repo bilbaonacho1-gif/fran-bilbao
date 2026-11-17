@@ -359,6 +359,62 @@
   }
 
   /* ------------------------------------------------------------------
+     Topographic contour lines for the Experience backgrounds: drawn once
+     with a shader at screen resolution and handed to CSS as an image.
+     Without WebGL the plain gradient stays.
+  ------------------------------------------------------------------ */
+  {
+    const draw = () => {
+      const c = document.createElement('canvas');
+      const scale = Math.min(2, window.devicePixelRatio || 1);
+      c.width = Math.round(1800 * scale); c.height = Math.round(1200 * scale);
+      const gl = c.getContext('webgl', { premultipliedAlpha: false, preserveDrawingBuffer: true, antialias: false });
+      if (!gl || !gl.getExtension('OES_standard_derivatives')) return;
+      const fs = `#extension GL_OES_standard_derivatives : enable
+        precision highp float;
+        uniform vec2 uRes;
+        vec2 hash(vec2 p){ p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return -1.0 + 2.0 * fract(sin(p) * 43758.5453123); }
+        float noise(vec2 p){
+          vec2 i = floor(p), f = fract(p);
+          vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+          return mix(mix(dot(hash(i), f), dot(hash(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0)), u.x),
+                     mix(dot(hash(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0)), dot(hash(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0)), u.x), u.y);
+        }
+        void main(){
+          vec2 p = gl_FragCoord.xy / uRes.y * 2.1 + 5.3;
+          float n = 0.7 * noise(p) + 0.3 * noise(p * 1.9 + 7.1);     /* smooth terrain */
+          float band = n * 26.0;
+          float d = abs(fract(band) - 0.5);
+          float w = fwidth(band) + 0.00001;
+          float line = 1.0 - smoothstep(w * 0.45, w * 1.35, d);      /* an even hairline per contour */
+          gl_FragColor = vec4(0.62, 0.8, 1.0, line);
+        }`;
+      const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+      const pr = gl.createProgram();
+      gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }'));
+      gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(pr);
+      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return;
+      gl.useProgram(pr);
+      gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(pr, 'p');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform2f(gl.getUniformLocation(pr, 'uRes'), c.width, c.height);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      c.toBlob((blob) => {
+        const ext = gl.getExtension('WEBGL_lose_context');
+        if (ext) ext.loseContext();
+        if (blob) document.documentElement.style.setProperty('--topo', `url("${URL.createObjectURL(blob)}")`);
+      }, 'image/png');
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(draw, { timeout: 800 }); else setTimeout(draw, 60);
+  }
+
+  /* ------------------------------------------------------------------
      Role posters: contained 1800ms change, cubic-bezier(.86,0,.07,1).
      0-600 out scales to .85; 600-1200 out slides up, in slides up from
      below (both .85); 1200-1800 in scales back to 1.
