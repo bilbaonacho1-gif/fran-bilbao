@@ -19,10 +19,6 @@
     'hero.role': 'Analista de Pricing & Routing Operations',
     'hero.where': 'Mercado Pago — Buenos Aires, Argentina',
     'hero.h1': 'Francisco José Bilbao — Analista de Pricing & Routing Operations',
-    'hero.t1': 'Soy',
-    'hero.t2': 'analista',
-    'hero.t3': 'de pagos',
-    'hero.note': 'pueden decirme Fran',
     'hero.lede': 'Investigo de punta a punta los problemas de procesamiento de pagos en seis mercados de LATAM, y convierto grandes volúmenes de datos transaccionales en decisiones accionables para los equipos.',
     'hero.hint': 'Mové el cursor para pintar',
     'about.title': 'Perfil',
@@ -418,8 +414,11 @@
   let raf = 0, last = 0, clock = 0, idleFor = 0;
   let visible = true;
 
+  const stage = hero.querySelector('.hero__stage');
+
   function layout() {
     const r = hero.getBoundingClientRect();
+    const sr = stage.getBoundingClientRect();
     W = Math.max(1, Math.round(r.width));
     H = Math.max(1, Math.round(r.height));
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -427,11 +426,12 @@
     canvas.height = paint.height = Math.round(H * dpr);
     trail.width = TRAIL_W;
     trail.height = Math.max(1, Math.round(TRAIL_W * H / W));
-    /* size the word to ~112% of the hero width so it bleeds off the edges */
+    /* the word fills the free stage between the labels and the intro */
     ctx.font = `300 100px "Inter Tight", "Helvetica Neue", Arial, sans-serif`;
     const m = ctx.measureText(WORD);
-    fontPx = Math.min((W * 1.12) / m.width * 100, H * 1.25);
-    baseY = H * 0.5 + fontPx * 0.36;
+    const cap = 0.72; /* cap height of the face, in em */
+    fontPx = Math.min((W * 0.95) / m.width * 100, (sr.height * 0.96) / cap);
+    baseY = (sr.top - r.top) + sr.height / 2 + fontPx * cap / 2;
     points = [];
     prev = null;
     drawStatic();

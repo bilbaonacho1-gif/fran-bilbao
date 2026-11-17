@@ -110,23 +110,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .hero__role { grid-area: role; font-weight: 600; }
 .hero__where { grid-area: where; text-align: right; }
-.hero__title {
-  grid-area: cipher; align-self: center;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 0.02em 0.22em;
-  font-size: clamp(3rem, 9.4vw, 10rem);
-  font-weight: 300; line-height: 0.9; letter-spacing: -0.045em; text-transform: uppercase;
-}
-.hero__name { color: var(--red); font-size: 0.33em; line-height: 0.95; letter-spacing: -0.03em; font-weight: 400; }
-.hero__break { flex-basis: 100%; height: 0; }
-.hero__note {
-  grid-area: cipher; align-self: end; justify-self: end;
-  font-size: clamp(1.5rem, 3.2vw, 2.6rem); line-height: 1;
-  transform: rotate(-6deg);
-  margin: clamp(0.5rem, 6vw, 5rem) clamp(0rem, 5vw, 6rem) 0 0;
-  display: flex; flex-direction: column; align-items: flex-start; pointer-events: none;
-}
-.hero__note svg { margin-left: 1.2em; width: 2.2em; height: auto; transform: scaleX(-1) rotate(8deg); }
-.hero__lede { grid-area: lede; max-width: 34rem; font-size: clamp(1.05rem, 1.5vw, 1.3rem); line-height: 1.35; }
+.hero__stage { grid-area: cipher; min-height: clamp(8rem, 32vw, 60svh); }
+.hero__intro { grid-area: lede; display: grid; gap: 0.5rem; max-width: 34rem; }
+.hero__name { color: var(--red); font-size: clamp(1.5rem, 2.6vw, 2.4rem); font-weight: 400; line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; }
+.hero__lede { font-size: clamp(1.05rem, 1.5vw, 1.3rem); line-height: 1.35; }
 .hero__sites { grid-area: sites; display: flex; gap: 0.5rem; justify-content: flex-end; align-self: end; flex-wrap: wrap; }
 .hero__sites li { border: 1px solid var(--rule); padding: 0.25rem 0.5rem; background: var(--paper); }
 .hero__hint { grid-area: hint; color: var(--ink-soft); display: flex; align-items: center; gap: 0.8rem; }
@@ -239,15 +226,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .top__name { font-size: 0.75rem; }
   .hero { min-height: 0; }
   .hero__inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "role" "where" "cipher" "lede" "sites" "hint"; align-content: start; gap: 0.5rem; padding-bottom: 2.5rem; }
-  .hero__title { margin: 2.2rem 0 4.8rem; }
+  .hero__stage { margin: 1.2rem 0; }
   .folio__star { bottom: auto; top: 12%; right: 6%; font-size: 9rem; }
   .hero__lede { margin-bottom: 1rem; }
   .hero__hint { display: none; }
   .hero__where { text-align: left; }
   .hero__sites { justify-content: flex-start; }
-  .hero__title { font-size: 17vw; }
-  .hero__note { margin: -0.6rem 0 0; align-self: end; transform: rotate(-5deg) translateY(5%); }
-  .hero__note svg { display: none; }
   .facts { grid-template-columns: minmax(0, 1fr); }
 }
 
@@ -258,20 +242,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- print: one clean CV ---------- */
 @media print {
-  @page { size: A4; margin: 9mm 11mm; }
-  body { background: #fff; font-size: 8.8pt; line-height: 1.3; }
+  @page { size: A4; margin: 8mm 11mm; }
+  body { background: #fff; font-size: 8.6pt; line-height: 1.28; }
   .top, .hero__canvas, .hero__note, .hero__hint, .ticker, .contact__note, .foot, .skip, .cell__code { display: none !important; }
   .hero { min-height: 0; }
   .hero__inner { display: block; padding: 0; }
   .hero__where { text-align: left; margin-bottom: 4pt; }
   .sr-only { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: 18pt; font-weight: 600; line-height: 1.1; display: block; margin: 4pt 0; }
-  .hero__title { display: none; }
-  .print-name { font-size: 18pt; font-weight: 600; line-height: 1.1; margin: 4pt 0 0; }
+  .hero__stage { display: none; }
+  .hero__intro { max-width: none; gap: 0; }
+  .hero__name { font-size: 16pt; font-weight: 600; color: inherit; text-transform: none; margin: 2pt 0 0; }
+  .hero__lede { margin: 2pt 0 0 !important; }
   .folio, .posters__next, .poster__word { display: none !important; }
   .reveal { opacity: 1 !important; transform: none !important; }
   .hero__lede { font-size: 10pt; max-width: none; margin: 4pt 0; }
   .hero__sites { justify-content: flex-start; }
-  .sec { padding: 7pt 0 0; }
+  .sec { padding: 5pt 0 0; }
   .sec__head { margin-bottom: 4pt; padding-bottom: 1pt; }
   .display { font-size: 13pt; font-weight: 600; letter-spacing: 0; }
   .about__grid { gap: 6pt 16pt; }
