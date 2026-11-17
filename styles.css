@@ -23,6 +23,12 @@
   font-display: swap;
 }
 @font-face {
+  font-family: "Syne";
+  src: url("fonts/syne-latin-800-normal.woff2") format("woff2");
+  font-weight: 800;
+  font-display: swap;
+}
+@font-face {
   font-family: "Nothing You Could Do";
   src: url("fonts/nothing-you-could-do-latin-400-normal.woff2") format("woff2");
   font-weight: 400;
@@ -157,7 +163,7 @@ html.intro-on { overflow: hidden; }
 .sec { padding: clamp(3.5rem, 9vw, 8rem) var(--gutter) 0; }
 .sec__head { display: flex; align-items: baseline; gap: 1.2rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.6rem; margin-bottom: clamp(1.6rem, 4vw, 3.2rem); }
 .label { color: var(--ink-soft); font-weight: 500; }
-.display { font-weight: 250; font-size: clamp(2.8rem, 9vw, 8rem); line-height: 0.9; letter-spacing: -0.035em; text-transform: uppercase; }
+.display { font-family: "Syne", var(--sans); font-weight: 800; font-size: clamp(2.2rem, 7vw, 6rem); line-height: 0.95; letter-spacing: -0.02em; text-transform: uppercase; }
 
 .about__grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(1.6rem, 4vw, 4rem) var(--gutter); }
 .about__big { font-size: clamp(1.6rem, 3.4vw, 3rem); line-height: 1.08; letter-spacing: -0.02em; font-weight: 350; text-wrap: balance; }
@@ -275,7 +281,7 @@ html.intro-on { overflow: hidden; }
   html.hx-on .hero { flex: none; width: 100vw; height: 100%; min-height: 0; }
   html.hx-on .sec { flex: none; display: flex; height: 100%; padding: 0; border-left: 1px solid var(--rule); }
   html.hx-on .sec__head { flex: none; flex-direction: column; align-items: center; justify-content: space-between; gap: 1rem; margin: 0; padding: 1.4rem 1rem; border-bottom: 0; border-right: 1px solid var(--rule); }
-  html.hx-on .display { writing-mode: vertical-rl; transform: rotate(180deg); font-size: min(10.5svh, 7rem); line-height: 0.9; white-space: nowrap; }
+  html.hx-on .display { writing-mode: vertical-rl; transform: rotate(180deg); font-size: min(6.6svh, 4.4rem); line-height: 1; white-space: nowrap; }
   html.hx-on .about__grid { flex: none; width: min(90vw, 1500px); padding: clamp(1.4rem, 5svh, 3.5rem) var(--gutter); align-content: center; }
   html.hx-on .folio { flex: none; width: 100vw; height: 100%; margin: 0; }
   html.hx-on .folio__frame { position: relative; top: auto; height: 100%; }
@@ -319,7 +325,7 @@ html.intro-on { overflow: hidden; }
 @media screen and (max-width: 1023px) {
   html.hx-on .top { padding-block: 0.5rem; }
   html.hx-on .sec__head { padding: 1rem 0.5rem; }
-  html.hx-on .display { font-size: min(9svh, 4.6rem); }
+  html.hx-on .display { font-size: min(6svh, 3.4rem); }
   html.hx-on .hero__inner { align-content: space-between; padding-bottom: 1.2rem; }
   html.hx-on .hero__stage { min-height: 38svh; margin: 0; }
   html.hx-on .about__grid { display: flex; align-items: center; width: auto; gap: 9vw; padding: 1.4rem 7vw; }
@@ -402,7 +408,7 @@ html.intro-on { overflow: hidden; }
   .hero__sites { justify-content: flex-start; }
   .sec { padding: 5pt 0 0; }
   .sec__head { margin-bottom: 4pt; padding-bottom: 1pt; }
-  .display { font-size: 13pt; font-weight: 600; letter-spacing: 0; }
+  .display { font-family: var(--sans); font-size: 13pt; font-weight: 600; letter-spacing: 0; }
   .about__grid { gap: 6pt 16pt; }
   .about__big { font-size: 11pt; }
   .cells { border: 0; }
