@@ -2,7 +2,7 @@
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, MeshStandardMaterial,
   EdgesGeometry, LineSegments, LineBasicMaterial,
-  PointLight, DirectionalLight, PMREMGenerator, ACESFilmicToneMapping, SRGBColorSpace,
+  PointLight, DirectionalLight, PMREMGenerator, LinearToneMapping, SRGBColorSpace,
 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
@@ -17,8 +17,8 @@ export function create(canvas) {
   try {
     renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
   } catch (e) { return null; }
-  renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMapping = LinearToneMapping; /* keeps the red pure where it clips */
+  renderer.toneMappingExposure = 1;
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
 
@@ -27,14 +27,14 @@ export function create(canvas) {
   const pmrem = new PMREMGenerator(renderer);
   const envTarget = pmrem.fromScene(new RoomEnvironment(), 0.04);
   scene.environment = envTarget.texture;
-  scene.environmentIntensity = 0.72;
+  scene.environmentIntensity = 0.5;
 
-  const RED = 0xff1240;
-  const material = new MeshStandardMaterial({ color: 0x4a4541, metalness: 1, roughness: 0.22 });
+  const RED = 0xff0030;
+  const material = new MeshStandardMaterial({ color: 0x2b2826, metalness: 1, roughness: 0.26 });
   const glow = new PointLight(RED, 1, 0, 2);
-  const under = new DirectionalLight(RED, 1.6);
+  const under = new DirectionalLight(RED, 0.55);
   under.position.set(0.5, -1, 0.5);
-  const key = new DirectionalLight(0xfff0e8, 0.5);
+  const key = new DirectionalLight(0xffffff, 0.22);
   key.position.set(-0.4, 1, 0.8);
   scene.add(glow, under, key);
 
@@ -136,6 +136,7 @@ export function create(canvas) {
       const w = words[idx];
       if (w) {
         const sc = w.scale * (1 - e);
+        const reach = BASE * w.scale * 1.25;
         for (const l of w.letters) {
           for (let a = 0; a < 3; a++) {
             l.vel[a] += (-26 * l.rot[a] - 3.4 * l.vel[a]) * s;
@@ -148,14 +149,16 @@ export function create(canvas) {
             l.rot[2] + e * l.seed[2] * 3,
           );
           l.mesh.position.set(l.x * w.scale * (1 + e * 0.9), l.y * w.scale + e * l.seed[0] * H * 0.3, e * (200 + l.seed[1] * 260));
-          /* electric flicker on the red outline */
+          /* the red outline only ignites where the light is */
+          const dx = light.x - (stage.cx + l.x * w.scale), dy = light.y - (stage.cy - l.y * w.scale);
+          const near = Math.exp(-(dx * dx + dy * dy) / (reach * reach));
           const fl = Math.sin(t * 13 + l.phase * 5) * Math.sin(t * 3.1 + l.phase);
-          l.lineMat.opacity = still ? 0.85 : 0.62 + 0.38 * (fl > 0.82 ? 0.2 : 1) * (0.8 + 0.2 * Math.sin(t * 2 + l.phase));
+          l.lineMat.opacity = Math.min(1, near * 1.1) * (still || fl < 0.82 ? 1 : 0.35);
           l.mesh.scale.setScalar(Math.max(0.0001, sc));
         }
       }
       glow.position.set(light.x - W / 2, H / 2 - light.y, 280);
-      glow.intensity = 2600000 * (1 + e * 0.6);
+      glow.intensity = 1500000 * (1 + e * 0.6);
       renderer.render(scene, camera);
     },
     dispose() {

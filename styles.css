@@ -102,12 +102,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ---------- hero ---------- */
 .hero { position: relative; min-height: calc(100svh - 68px); display: flex; overflow: hidden; }
-.hero__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 24px rgba(255, 18, 64, 0.5)); }
-.hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.38; transition: background-position 0.9s cubic-bezier(0.165, 0.84, 0.44, 1); background: var(--liquid-lines) calc(50% + var(--mx, 0) * 9%) calc(50% + var(--my, 0) * 9%) / 125% 125% no-repeat, radial-gradient(70% 60% at 50% 105%, rgba(255, 18, 64, 0.5) 0%, rgba(120, 0, 28, 0.25) 45%, transparent 75%); -webkit-mask-image: radial-gradient(85% 75% at 50% 100%, #000 0%, transparent 78%); mask-image: radial-gradient(85% 75% at 50% 100%, #000 0%, transparent 78%); }
-.hero__rings { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--ink); opacity: 0.07; }
+.hero__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero__rings { display: none; }
 .hero__rings * { vector-effect: non-scaling-stroke; stroke-width: 1; }
-.hero { background: radial-gradient(120% 90% at 50% 45%, #2f2c29 0%, var(--paper) 55%, #191817 100%); }
-.hero::before { content: ""; position: absolute; inset: 0; opacity: 0.5; mix-blend-mode: overlay; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.hero { background: var(--paper); }
 .hero { cursor: crosshair; user-select: none; -webkit-user-select: none; }
 .hero__stage { position: relative; display: grid; place-items: center; }
 .hero__word { position: relative; opacity: 0; font-weight: 200; font-size: clamp(2.6rem, 9vw, 9rem); line-height: 1; letter-spacing: 0.62em; margin-right: -0.62em; text-transform: uppercase; transform: scaleY(1.35); white-space: nowrap; pointer-events: none; text-shadow: 0 0 40px var(--paper); }
