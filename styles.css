@@ -222,27 +222,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .foot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 0.6rem var(--gutter) 1.2rem; border-top: 1px solid var(--rule); color: var(--ink-soft); }
 .foot a { display: inline-block; padding: 0.75rem 0; text-decoration: none; color: var(--ink); }
 
-/* ---------- routing illustration ---------- */
-.flow { margin: clamp(2.5rem, 6vw, 5rem) 0 0; border: 1px solid var(--rule); padding: clamp(0.8rem, 2vw, 1.4rem); }
-.flow__labels { position: relative; height: 1.4rem; color: var(--ink-soft); }
-.flow__labels span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
-.flow__labels span:nth-child(1) { left: 3%; transform: none; left: 0; }
-.flow__labels span:nth-child(2) { left: 42%; }
-.flow__labels span:nth-child(3) { left: 80%; }
-.flow__labels span:nth-child(4) { left: auto; right: 0; transform: none; }
-.flow__svg { display: block; width: 100%; height: auto; }
-.flow__lines path { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; opacity: 0.45; }
-.flow__node { fill: var(--ink); }
-.flow__router { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.flow__box { fill: var(--panel); stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.flow__dots .is-ok { fill: var(--ink); }
-.flow__dots .is-no { fill: var(--red); }
-.flow figcaption { display: grid; gap: 0.6rem; margin-top: 0.6rem; color: var(--ink-soft); font-size: 0.9375rem; max-width: 46rem; }
-.flow__legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; color: var(--ink); }
-.dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; display: inline-block; }
-.dot--ok { background: var(--ink); }
-.dot--no { background: var(--red); margin-left: 0.9rem; }
-
 /* ---------- scroll reveal ---------- */
 .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) var(--d, 0ms), transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) var(--d, 0ms); }
 .reveal.is-in { opacity: 1; transform: none; }
@@ -257,9 +236,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .cell__list--cols { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 600px) {
-  .flow__labels span:nth-child(3) { left: 76%; }
-  .flow__labels span:nth-child(4) { display: none; }
-  .flow__dots circle { r: 11px; }
   .top__name { font-size: 0.75rem; }
   .hero { min-height: 0; }
   .hero__inner { grid-template-columns: minmax(0, 1fr); grid-template-areas: "role" "where" "cipher" "lede" "sites" "hint"; align-content: start; gap: 0.5rem; padding-bottom: 2.5rem; }
@@ -291,7 +267,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .sr-only { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: 18pt; font-weight: 600; line-height: 1.1; display: block; margin: 4pt 0; }
   .hero__title { display: none; }
   .print-name { font-size: 18pt; font-weight: 600; line-height: 1.1; margin: 4pt 0 0; }
-  .flow, .folio, .posters__next, .poster__word { display: none !important; }
+  .folio, .posters__next, .poster__word { display: none !important; }
   .reveal { opacity: 1 !important; transform: none !important; }
   .hero__lede { font-size: 10pt; max-width: none; margin: 4pt 0; }
   .hero__sites { justify-content: flex-start; }
