@@ -231,6 +231,7 @@
   let hxMeasure = () => {};
   let heroRelang = () => {};
   let heroPrime = () => {};
+  let splitTitles = () => {};
   let postersMeasure = () => {};
   let heroEnter = () => {};
 
@@ -272,6 +273,7 @@
     document.querySelectorAll('.lang__btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     try { localStorage.setItem('lang', lang); } catch (e) { /* storage unavailable */ }
     postersMeasure();
+    splitTitles();
     hxMeasure();
     heroRelang();
   }
@@ -282,6 +284,24 @@
   if (startLang === 'es') setLang('es');
 
   document.getElementById('pdf').addEventListener('click', () => window.print());
+
+  /* section titles are split into letters so each one can drop in */
+  splitTitles = () => {
+    document.querySelectorAll('.sec__head .display').forEach((h) => {
+      const text = h.getAttribute('aria-label') && h.querySelector('.ch') ? h.textContent : h.textContent;
+      h.setAttribute('aria-label', text);
+      h.textContent = '';
+      [...text].forEach((c, i) => {
+        const sp = document.createElement('span');
+        sp.className = 'ch';
+        sp.setAttribute('aria-hidden', 'true');
+        sp.style.setProperty('--i', i);
+        sp.textContent = c === ' ' ? '\u00a0' : c;
+        h.appendChild(sp);
+      });
+    });
+  };
+  splitTitles();
 
   /* ------------------------------------------------------------------
      Scroll reveal
