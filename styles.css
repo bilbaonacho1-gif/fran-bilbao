@@ -210,11 +210,12 @@ html.intro-on { overflow: hidden; }
 .posters--on { position: relative; display: block; border: 0; }
 .posters--on .posters__stage { position: relative; overflow: hidden; background: #171615; }
 .posters--on .cell { position: absolute; top: 0; left: 0; right: 0; min-height: 100%; border: 0; padding: clamp(1.2rem, 3vw, 2.6rem); padding-bottom: 6rem; will-change: transform; }
-.posters--on .cell { background: radial-gradient(75% 95% at 100% 0%, rgba(42, 98, 214, 0.42) 0%, rgba(42, 98, 214, 0.12) 45%, transparent 75%), #1b1a19; color: var(--on-color); --acc: #8fc4ff; --soft: color-mix(in srgb, var(--on-color) 66%, transparent); }
-.posters--on .cell:nth-child(2) { background: radial-gradient(75% 95% at 100% 0%, rgba(38, 150, 80, 0.4) 0%, rgba(38, 150, 80, 0.12) 45%, transparent 75%), #1b1a19; --acc: #c5f04a; }
-.posters--on .cell:nth-child(3) { background: radial-gradient(75% 95% at 100% 0%, rgba(214, 36, 70, 0.42) 0%, rgba(214, 36, 70, 0.12) 45%, transparent 75%), #1b1a19; --acc: #ff7d93; }
+.posters--on .cell { background: #201e1d; color: var(--on-color); --acc: #8fc4ff; --soft: color-mix(in srgb, var(--on-color) 66%, transparent); }
+.posters--on .cell:nth-child(2) { --acc: #c5f04a; }
+.posters--on .cell:nth-child(3) { --acc: #ff7d93; }
 .posters--on .cell__code { color: var(--acc); }
-.cell.topo::before { display: none; }
+/* posters: the map lines are tinted with each role's colour, over plain gray */
+.cell.topo::before { background: var(--acc); opacity: 0.27; -webkit-mask: var(--topo, linear-gradient(transparent, transparent)) var(--topo-pos, 50% 50%) / 170% auto; mask: var(--topo, linear-gradient(transparent, transparent)) var(--topo-pos, 50% 50%) / 170% auto; }
 .posters--on .cell__dates, .posters--on .cell__list li::before { color: var(--acc); }
 .posters--on .cell__org, .posters--on .steps__when { color: var(--soft); }
 .posters--on .steps__when span { color: inherit; }
