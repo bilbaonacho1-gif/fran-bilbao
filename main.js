@@ -383,17 +383,20 @@
         float fbm(vec2 p){ return 0.62 * noise(p) + 0.26 * noise(p * 2.03 + 7.1) + 0.12 * noise(p * 4.1 + 3.3); }
         void main(){
           vec2 uv = gl_FragCoord.xy / uRes.y;
-          vec2 p = uv * vec2(1.25, 2.1) + uSeed;
-          p += 0.55 * vec2(fbm(p * 0.9 + 4.2), fbm(p * 0.9 - 2.7));   /* domain warp: the liquid look */
-          float n = fbm(p * 0.85);
-          float band = n * 15.0;
+          vec2 p = uv * vec2(1.5, 0.85) + uSeed;                        /* stretched: long vertical flow */
+          p += 0.75 * vec2(fbm(p * 0.8 + 4.2), fbm(p * 0.8 - 2.7));     /* domain warp: the liquid look */
+          float n = fbm(p * 0.8);
+          float band = n * 9.0;
           float d = abs(fract(band) - 0.5);                             /* distance to the nearest contour */
-          float w = fwidth(band) * 0.5 + 0.0001;
-          float core = 1.0 - smoothstep(0.02, 0.02 + w * 2.0 + 0.05, d);
-          float glow = 1.0 - smoothstep(0.0, 0.42, d);
-          float keep = step(0.5, fract(floor(band) * 0.5 + 0.25));      /* every other contour, so lines stay sparse */
-          float a = (core * 0.6 + glow * glow * 0.22) * keep;
-          gl_FragColor = vec4(uCol + core * 0.25, a);
+          float w = fwidth(band) + 0.00001;                             /* one pixel, in band units */
+          float keep = step(0.5, fract(floor(band) * 0.5 + 0.25));      /* every other contour: few lines */
+          float core = 1.0 - smoothstep(w * 0.6, w * 1.9, d);           /* hairline, about 2px */
+          float halo = exp(-d / (w * 9.0));                             /* tight electric glow */
+          float haze = exp(-d / 0.16);                                  /* faint wide spill */
+          float flare = 0.35 + 0.65 * smoothstep(-0.25, 0.45, noise(p * 1.9 + 9.0));  /* brightness surges along the line */
+          float a = (core + halo * 0.7 + haze * 0.12) * keep * flare;
+          vec3 col = mix(uCol, vec3(1.0, 0.86, 0.9), core * 0.75);      /* white-hot centre */
+          gl_FragColor = vec4(col, clamp(a, 0.0, 1.0));
         }`;
       gl.getExtension('OES_standard_derivatives');
       const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
