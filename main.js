@@ -518,6 +518,30 @@
     }
     const request = () => { if (!hraf) hraf = requestAnimationFrame(update); };
 
+    /* when scrolling stops close to a full-screen panel, settle exactly on it so nothing is cut off */
+    let settleTimer = 0, touching = false;
+    function settle() {
+      if (!hxActive || touching) return;
+      const s0 = Math.max(0, Math.min(total, topH - hx.getBoundingClientRect().top));
+      if (s0 > folioX && s0 < folioX + hold) return;            /* inside the folio hold: already aligned */
+      const x = s0 <= folioX ? s0 : s0 - hold;
+      const near = pin.clientWidth * 0.22;
+      let best = null;
+      track.querySelectorAll('.hero, .folio, .cells, .contact').forEach((el) => {
+        const ax = Math.max(0, Math.min(dist, xOf(el)));
+        const d = Math.abs(ax - x);
+        if (d > 1 && d < near && (!best || d < best.d)) best = { d, ax };
+      });
+      if (!best) return;
+      const top = hx.getBoundingClientRect().top + window.scrollY - topH;
+      /* arriving at the folio from the right means its sheets are already gone: land after the hold */
+      const target = best.ax === folioX && s0 > folioX ? best.ax + hold : scrollFor(best.ax);
+      window.scrollTo({ top: top + target, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
+    }
+    window.addEventListener('scroll', () => { clearTimeout(settleTimer); settleTimer = setTimeout(settle, 220); }, { passive: true });
+    window.addEventListener('touchstart', () => { touching = true; clearTimeout(settleTimer); }, { passive: true });
+    window.addEventListener('touchend', () => { touching = false; clearTimeout(settleTimer); settleTimer = setTimeout(settle, 320); }, { passive: true });
+
     function setMode() {
       hxActive = mq.matches;
       document.documentElement.classList.toggle('hx-on', hxActive);
