@@ -225,10 +225,10 @@ html.intro-on { overflow: hidden; }
 .folio__frame { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 .folio__page { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 1rem; padding: 6rem calc(var(--gutter) + 0.5rem) clamp(1.6rem, 4vw, 3rem); }
 .folio__sheet { inset: -1rem; padding: 7rem calc(var(--gutter) + 1.5rem) clamp(2.6rem, 5vw, 4rem); transform-origin: left top; will-change: transform; }
-.folio__end { background: radial-gradient(110% 120% at 20% 100%, #17336e 0%, #0e2250 42%, #081530 100%); color: var(--on-color); --acc: #8fc4ff; }
+.folio__end { background: radial-gradient(110% 120% at 20% 100%, #7a1024 0%, #4a0915 42%, #1f0308 100%); color: var(--on-color); --acc: #ff7d93; }
 .folio__sheet--a { --acc: #8fc4ff; background: radial-gradient(110% 120% at 15% 0%, #17336e 0%, #0e2250 42%, #081530 100%); color: var(--on-color); z-index: 3; }
 .folio__sheet--b { --acc: #c5f04a; background: radial-gradient(110% 120% at 85% 0%, #1c5a34 0%, #103c22 42%, #071d11 100%); color: var(--on-color); z-index: 2; }
-.folio__sheet--c { --acc: #ff7d93; background: radial-gradient(110% 120% at 50% 50%, #7a1024 0%, #4a0915 42%, #1f0308 100%); color: var(--on-color); z-index: 1; }
+.folio__sheet--c { --acc: #ffb347; background: radial-gradient(110% 120% at 50% 50%, #9a4a0c 0%, #5e2a07 42%, #271003 100%); color: var(--on-color); z-index: 1; }
 .folio__idx { display: flex; justify-content: space-between; gap: 1rem; position: relative; }
 .folio__h { position: relative; align-self: center; font-size: clamp(2.9rem, 12.2vw, 12.5rem); font-weight: 800; line-height: 0.86; letter-spacing: -0.05em; text-transform: uppercase; }
 .folio__h span { display: block; white-space: nowrap; }
