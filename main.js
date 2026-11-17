@@ -19,9 +19,17 @@
     'hero.role': 'Analista de Pricing & Routing Operations',
     'hero.where': 'Mercado Pago — Buenos Aires, Argentina',
     'hero.h1': 'Francisco José Bilbao — Analista de Pricing & Routing Operations',
-    'hero.cipher': 'Causa|Raíz|Primero',
-    'hero.cipherAria': 'Causa raíz primero. Repetir la animación.',
-    'hero.note': 'hola, soy Fran',
+    'hero.t1': 'Soy',
+    'hero.t2': 'analista',
+    'hero.t3': 'de pagos',
+    'hero.note': 'pueden decirme Fran',
+    'flow.l1': 'Checkout',
+    'flow.l2': 'Router',
+    'flow.l3': 'Adquirentes',
+    'flow.l4': 'Aprobado',
+    'flow.ok': 'Aprobado',
+    'flow.no': 'Rechazado → reintento por otra ruta',
+    'flow.cap': 'En qué trabajo, simplificado: el router envía cada pago al adquirente con más chances de aprobarlo, y un rechazo puede reintentarse por otra ruta. Es una ilustración, no datos reales.',
     'hero.lede': 'Investigo de punta a punta los problemas de procesamiento de pagos en seis mercados de LATAM, y convierto grandes volúmenes de datos transaccionales en decisiones accionables para los equipos.',
     'hero.hint': 'Mové el cursor para pintar',
     'about.title': 'Perfil',
@@ -67,12 +75,27 @@
     'kit.g2': 'IA y automatización',
     'kit.g2note': 'Las uso para analizar datos operativos, automatizar flujos recurrentes y acercar hallazgos a los stakeholders.',
     'kit.g3': 'Forma de trabajo',
+    'kit.p1': 'Datos.',
+    'kit.p2': 'IA.',
+    'kit.p3': 'Equipo.',
+    'kit.next': 'Siguiente póster →',
+    'fo.e.when': 'Sep 2025 — Actualidad',
+    'fo.e.a': 'Pricing &',
+    'fo.e.b': 'Routing.',
+    'fo.e.sub': 'Mercado Pago — el router de pagos en seis mercados de LATAM. El detalle completo, abajo.',
+    'fo.2.when': 'Oct 2024 — Ago 2025',
+    'fo.2.sub': 'MercadoLibre — referente del equipo; análisis para mejorar métricas y procesos.',
+    'fo.1.when': 'Ago 2022 — Oct 2024',
+    'fo.1.sub': 'MercadoLibre — una línea de servicio exclusiva de Mercado Envíos, de Junior a Semi Senior.',
+    'fo.0.when': 'Mar 2021 — Feb 2022',
+    'fo.0.a': 'Ejecutivo',
+    'fo.0.b': 'de Cuentas.',
+    'fo.0.sub': 'Parabens Créditos S.A. — una cartera de clientes en cobranzas. Scrolleá para seguir el recorrido.',
     'kit.w1': 'Coordinación entre equipos',
     'kit.w2': 'Optimización de procesos',
     'kit.w3': 'Triage y escalamiento de incidentes',
     'kit.w4': 'Desarrollo de equipo',
     'contact.title': 'Contacto',
-    'contact.note': '¡hablemos!',
     'foot.top': 'Volver arriba ↑',
   };
   const EN = {};
@@ -256,6 +279,198 @@
   if (startLang === 'es') setLang('es');
 
   document.getElementById('pdf').addEventListener('click', () => window.print());
+
+  /* ------------------------------------------------------------------
+     Scroll reveal
+  ------------------------------------------------------------------ */
+  {
+    const targets = document.querySelectorAll('.sec__head, .about__grid > *, .flow, .cell, .ticker, .posters, .contact__links li');
+    const seen = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); seen.unobserve(e.target); }
+    }, { rootMargin: '0px 0px -8% 0px' });
+    targets.forEach((el, i) => { el.classList.add('reveal'); el.style.setProperty('--d', `${(i % 4) * 70}ms`); seen.observe(el); });
+  }
+
+  /* ------------------------------------------------------------------
+     Falling folios: scroll-driven. Each sheet leaves with
+     translateY(q*200%) rotate(q*-10deg), q = clamp((3p - i - .2) / .7).
+  ------------------------------------------------------------------ */
+  {
+    const runway = document.querySelector('[data-folio]');
+    const frame = runway.querySelector('.folio__frame');
+    const sheets = [...runway.querySelectorAll('.folio__sheet')].reverse(); /* DOM is bottom-up */
+    const end = runway.querySelector('.folio__end');
+    const pages = [...sheets, end];
+    let queued = 0, current = -1;
+    function update() {
+      queued = 0;
+      if (reduceQuery.matches) {
+        sheets.forEach((sh) => { sh.style.transform = ''; });
+        pages.forEach((pg, i) => pg.toggleAttribute('aria-hidden', i !== pages.length - 1));
+        current = -1;
+        return;
+      }
+      const span = runway.offsetHeight - frame.clientHeight;
+      const p = span > 0 ? clamp01(-runway.getBoundingClientRect().top / span) : 0;
+      let cur = sheets.length;
+      sheets.forEach((sh, i) => {
+        const q = clamp01((3 * p - i - 0.2) / 0.7);
+        sh.style.transform = q ? `translateY(${q * 200}%) rotate(${q * -10}deg)` : '';
+        sh.style.visibility = q >= 1 ? 'hidden' : '';
+        if (q < 1 && cur === sheets.length) cur = i;
+      });
+      if (cur !== current) {
+        current = cur;
+        pages.forEach((pg, i) => pg.toggleAttribute('aria-hidden', i !== cur));
+      }
+    }
+    const request = () => { if (!queued) queued = requestAnimationFrame(update); };
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', request);
+    onReduceChange.push(request);
+    update();
+  }
+
+  /* ------------------------------------------------------------------
+     Toolkit posters: contained 1800ms change, cubic-bezier(.86,0,.07,1).
+     0-600 out scales to .85; 600-1200 out slides up, in slides up from
+     below (both .85); 1200-1800 in scales back to 1.
+  ------------------------------------------------------------------ */
+  {
+    const root = document.querySelector('[data-posters]');
+    const posters = [...root.querySelectorAll('.poster')];
+    const btn = root.querySelector('.posters__next');
+    const pease = bezierEase(0.86, 0, 0.07, 1);
+    let at = 0, from = 0, praf = 0, plast = 0, pelapsed = 0, running = false;
+    root.classList.add('posters--on');
+    function settle() {
+      posters.forEach((el, i) => {
+        const on = i === at;
+        el.style.transform = '';
+        el.style.visibility = on ? 'visible' : 'hidden';
+        el.style.zIndex = on ? 1 : 0;
+        el.toggleAttribute('aria-hidden', !on);
+        el.inert = !on;
+      });
+      running = false;
+    }
+    function pframe(now) {
+      praf = 0;
+      const dt = plast ? Math.min(100, now - plast) : 0;
+      plast = now;
+      pelapsed += dt;
+      const t = pelapsed;
+      const a = pease(clamp01(t / 600)), b = pease(clamp01((t - 600) / 600)), c = pease(clamp01((t - 1200) / 600));
+      const out = posters[from], inc = posters[at];
+      out.style.transform = `translateY(${-100 * b}%) scale(${1 - 0.15 * a})`;
+      inc.style.transform = `translateY(${100 - 100 * b}%) scale(${0.85 + 0.15 * c})`;
+      if (t >= 1800) { settle(); return; }
+      praf = requestAnimationFrame(pframe);
+    }
+    btn.addEventListener('click', () => {
+      if (praf) cancelAnimationFrame(praf);
+      praf = 0;
+      if (running) settle(); /* restart deliberately from a composed state */
+      from = at;
+      at = (at + 1) % posters.length;
+      if (reduceQuery.matches) { settle(); return; }
+      running = true; pelapsed = 0; plast = 0;
+      posters[at].style.visibility = 'visible';
+      posters[at].style.zIndex = 2;
+      posters[at].style.transform = 'translateY(100%) scale(0.85)';
+      praf = requestAnimationFrame(pframe);
+    });
+    onReduceChange.push(() => { if (reduceQuery.matches && running) { if (praf) cancelAnimationFrame(praf); praf = 0; settle(); } });
+    settle();
+  }
+
+  /* ------------------------------------------------------------------
+     Payment-routing illustration: dots travel checkout -> router ->
+     acquirer; a rejected dot turns red, returns and retries elsewhere.
+  ------------------------------------------------------------------ */
+  {
+    const fig = document.querySelector('.flow');
+    const layer = fig.querySelector('.flow__dots');
+    const NS = 'http://www.w3.org/2000/svg';
+    const path = (id) => { const el = document.getElementById(id); return { el, len: el.getTotalLength() }; };
+    const pin = path('flow-in');
+    const routes = [0, 1, 2].map((i) => ({ r: path('flow-r' + i), o: path('flow-o' + i) }));
+    const WEIGHT = [0.6, 0.28, 0.12];
+    const REJECT = [0.2, 0.32, 0.42];
+    let dots = [], fraf = 0, flast = 0, sinceSpawn = 0, fvisible = false;
+
+    function pickRoute(tried) {
+      const open = [0, 1, 2].filter((i) => !tried.includes(i));
+      if (!open.length) return -1;
+      let total = 0; for (const i of open) total += WEIGHT[i];
+      let x = Math.random() * total;
+      for (const i of open) { x -= WEIGHT[i]; if (x <= 0) return i; }
+      return open[open.length - 1];
+    }
+    function spawn() {
+      const node = document.createElementNS(NS, 'circle');
+      node.setAttribute('r', '7');
+      layer.appendChild(node);
+      dots.push({ node, phase: 'in', t: 0, dur: 1100, route: -1, tried: [], red: false });
+    }
+    function place(d, p, k, alpha) {
+      const pt = p.el.getPointAtLength(p.len * Math.max(0, Math.min(1, k)));
+      d.node.setAttribute('cx', pt.x.toFixed(1));
+      d.node.setAttribute('cy', pt.y.toFixed(1));
+      d.node.setAttribute('class', d.red ? 'is-no' : 'is-ok');
+      d.node.style.opacity = alpha;
+    }
+    function step(d, dt) {
+      d.t += dt;
+      const k = d.t / d.dur;
+      const smooth = k * k * (3 - 2 * k);
+      if (d.phase === 'in') { place(d, pin, k, Math.min(1, k * 6)); if (k >= 1) next(d, 'route'); }
+      else if (d.phase === 'route') { place(d, routes[d.route].r, smooth, 1); if (k >= 1) arrive(d); }
+      else if (d.phase === 'back') { place(d, routes[d.route].r, 1 - smooth, 1); if (k >= 1) next(d, 'route'); }
+      else if (d.phase === 'out') { place(d, routes[d.route].o, k, 1 - Math.max(0, (k - 0.6) / 0.4)); if (k >= 1) return false; }
+      else if (d.phase === 'die') { place(d, routes[d.route].r, 1, 1 - k); if (k >= 1) return false; }
+      return true;
+    }
+    function next(d, phase) {
+      d.t = 0;
+      if (phase === 'route') {
+        d.route = pickRoute(d.tried); d.tried.push(d.route); d.red = false; d.dur = 1200;
+      }
+      d.phase = phase;
+    }
+    function arrive(d) {
+      d.t = 0;
+      if (Math.random() < REJECT[d.route]) {
+        d.red = true;
+        if (d.tried.length < 3) { d.phase = 'back'; d.dur = 900; } else { d.phase = 'die'; d.dur = 500; }
+      } else { d.phase = 'out'; d.dur = 900; }
+    }
+    function fframe(now) {
+      fraf = 0;
+      const dt = flast ? Math.min(100, now - flast) : 16;
+      flast = now;
+      sinceSpawn += dt;
+      if (sinceSpawn > 420 && dots.length < 16) { sinceSpawn = 0; spawn(); }
+      dots = dots.filter((d) => { const keep = step(d, dt); if (!keep) d.node.remove(); return keep; });
+      frun();
+    }
+    function frun() {
+      if (!fraf && fvisible && !document.hidden && !reduceQuery.matches) fraf = requestAnimationFrame(fframe);
+    }
+    function fstop() { if (fraf) cancelAnimationFrame(fraf); fraf = 0; flast = 0; }
+    function fstatic() {
+      /* reduced motion: a few fixed dots that still tell the story */
+      dots.forEach((d) => d.node.remove()); dots = [];
+      [[pin, 0.35, false], [pin, 0.8, false], [routes[0].r, 0.6, false], [routes[0].o, 0.5, false], [routes[1].r, 0.55, true], [routes[2].r, 0.7, false]].forEach(([p, k, red]) => {
+        spawn(); const d = dots[dots.length - 1]; d.red = red; place(d, p, k, 1);
+      });
+    }
+    new IntersectionObserver(([e]) => { fvisible = e.isIntersecting; if (fvisible) frun(); else fstop(); }).observe(fig);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) fstop(); else frun(); });
+    const applyMotion = () => { fstop(); dots.forEach((d) => d.node.remove()); dots = []; if (reduceQuery.matches) fstatic(); else frun(); };
+    onReduceChange.push(applyMotion);
+    if (reduceQuery.matches) fstatic();
+  }
 
   /* ------------------------------------------------------------------
      Hero: giant outlined letters that the pointer paints with red light.

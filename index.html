@@ -41,14 +41,19 @@
     <p class="hero__role mono" data-i18n="hero.role">Pricing &amp; Routing Operations Analyst</p>
     <p class="hero__where mono" data-i18n="hero.where">Mercado Pago — Buenos Aires, Argentina</p>
 
-    <h1 class="sr-only" id="hero-title" data-i18n="hero.h1">Francisco José Bilbao — Pricing &amp; Routing Operations Analyst</h1>
-
+    <p class="print-only print-name">Francisco José Bilbao</p>
     <p class="print-only">Buenos Aires, Argentina · francisco280902@gmail.com · linkedin.com/in/franciscobilbao</p>
 
-    <button type="button" class="cipher mono" data-scramble data-scramble-lines data-i18n="hero.cipher" data-i18n-aria="hero.cipherAria" aria-label="Root cause first. Replay the animation.">Root|Cause|First</button>
+    <h1 class="hero__title" id="hero-title">
+      <span data-i18n="hero.t1">I'm</span>
+      <span class="hero__name">Francisco José<br>Bilbao</span>
+      <span data-i18n="hero.t2">payments</span>
+      <span class="hero__break" aria-hidden="true"></span>
+      <span data-i18n="hero.t3">analyst</span>
+    </h1>
 
     <p class="hero__note hand" aria-hidden="true">
-      <span data-i18n="hero.note">hi, I'm Fran</span>
+      <span data-i18n="hero.note">you can call me Fran</span>
       <svg viewBox="0 0 90 60" width="90" height="60" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8c22 2 44 14 58 40"/><path d="M50 40l15 9 3-17"/></svg>
     </p>
 
@@ -80,12 +85,70 @@
       <div><dt data-i18n="facts.lang">Languages</dt><dd data-i18n="facts.langV">Spanish, native · English, advanced (Cambridge First Certificate, 2019)</dd></div>
     </dl>
   </div>
+
+  <figure class="flow">
+    <div class="flow__labels mono" aria-hidden="true">
+      <span data-i18n="flow.l1">Checkout</span>
+      <span data-i18n="flow.l2">Router</span>
+      <span data-i18n="flow.l3">Acquirers</span>
+      <span data-i18n="flow.l4">Approved</span>
+    </div>
+    <svg class="flow__svg" viewBox="0 0 1000 300" role="img" aria-labelledby="flow-cap">
+      <g class="flow__lines" fill="none">
+        <path id="flow-in" d="M30 150 H394"/>
+        <path id="flow-r0" d="M446 150 C600 150 620 60 770 60"/>
+        <path id="flow-r1" d="M446 150 H770"/>
+        <path id="flow-r2" d="M446 150 C600 150 620 240 770 240"/>
+        <path id="flow-o0" d="M830 60 H975"/>
+        <path id="flow-o1" d="M830 150 H975"/>
+        <path id="flow-o2" d="M830 240 H975"/>
+      </g>
+      <circle class="flow__node" cx="30" cy="150" r="7"/>
+      <circle class="flow__router" cx="420" cy="150" r="26"/>
+      <rect class="flow__box" x="770" y="38" width="60" height="44"/>
+      <rect class="flow__box" x="770" y="128" width="60" height="44"/>
+      <rect class="flow__box" x="770" y="218" width="60" height="44"/>
+      <g class="flow__dots"></g>
+    </svg>
+    <figcaption id="flow-cap">
+      <span class="flow__legend mono" aria-hidden="true"><i class="dot dot--ok"></i><span data-i18n="flow.ok">Approved</span><i class="dot dot--no"></i><span data-i18n="flow.no">Rejected → retried on another route</span></span>
+      <span data-i18n="flow.cap">What I work on, simplified: the router sends each payment to the acquirer most likely to approve it, and a rejection can be retried on another route. Illustration only, not real data.</span>
+    </figcaption>
+  </figure>
 </section>
 
 <section class="sec exp" id="experience" aria-labelledby="exp-title">
   <div class="sec__head">
     <p class="label mono">02</p>
     <h2 id="exp-title" class="display" data-i18n="exp.title">Experience</h2>
+  </div>
+
+
+  <div class="folio" data-folio>
+    <div class="folio__frame">
+      <section class="folio__page folio__end">
+        <p class="folio__idx mono"><span>Folio 04/04</span><span data-i18n="fo.e.when">Sep 2025 — Present</span></p>
+        <h3 class="folio__h"><span>2025</span><span data-i18n="fo.e.a">Pricing &amp;</span><span data-i18n="fo.e.b">Routing.</span></h3>
+        <p class="folio__sub" data-i18n="fo.e.sub">Mercado Pago — the payment router across six LATAM markets. Full detail below.</p>
+      </section>
+      <section class="folio__page folio__sheet folio__sheet--c">
+        <span class="folio__ghost" aria-hidden="true">S</span>
+        <p class="folio__idx mono"><span>Folio 03/04</span><span data-i18n="fo.2.when">Oct 2024 — Aug 2025</span></p>
+        <h3 class="folio__h"><span>2024</span><span>Senior</span><span>CX.</span></h3>
+        <p class="folio__sub" data-i18n="fo.2.sub">MercadoLibre — team reference point; analysis to improve metrics and processes.</p>
+      </section>
+      <section class="folio__page folio__sheet folio__sheet--b">
+        <p class="folio__idx mono"><span>Folio 02/04</span><span data-i18n="fo.1.when">Aug 2022 — Oct 2024</span></p>
+        <h3 class="folio__h"><span>2022</span><span>Customer</span><span>Experience.</span></h3>
+        <p class="folio__sub" data-i18n="fo.1.sub">MercadoLibre — an exclusive Mercado Envíos service line, from Junior to Semi Senior.</p>
+        <span class="folio__star" aria-hidden="true">*</span>
+      </section>
+      <section class="folio__page folio__sheet folio__sheet--a">
+        <p class="folio__idx mono"><span>Folio 01/04</span><span data-i18n="fo.0.when">Mar 2021 — Feb 2022</span></p>
+        <h3 class="folio__h"><span>2021</span><span data-i18n="fo.0.a">Account</span><span data-i18n="fo.0.b">Manager.</span></h3>
+        <p class="folio__sub" data-i18n="fo.0.sub">Parabens Créditos S.A. — a client portfolio in collections. Scroll to follow the path.</p>
+      </section>
+    </div>
   </div>
 
   <div class="cells">
@@ -163,33 +226,39 @@
     </div>
   </div>
 
-  <div class="kit__grid">
-    <div>
-      <h3 class="label mono" data-i18n="kit.g1">Analytical &amp; technical</h3>
-      <ul class="kit__list">
-        <li>SQL</li><li>BigQuery</li><li>Python</li><li>Tableau</li>
-        <li data-i18n="kit.rca">Data analysis &amp; root-cause investigation</li>
-        <li data-i18n="kit.kpi">KPI reporting &amp; dashboards</li>
-        <li data-i18n="kit.pay">Payments processing &amp; routing</li>
-        <li data-i18n="kit.fin">Financial analysis</li>
-      </ul>
+  <div class="posters" data-posters>
+    <div class="posters__stage">
+      <article class="poster poster--a">
+        <p class="poster__idx mono"><span>01/03</span><span data-i18n="kit.g1">Analytical &amp; technical</span></p>
+        <h3 class="poster__word" data-i18n="kit.p1">Data.</h3>
+        <ul class="poster__list mono">
+          <li>SQL</li><li>BigQuery</li><li>Python</li><li>Tableau</li>
+          <li data-i18n="kit.rca">Data analysis &amp; root-cause investigation</li>
+          <li data-i18n="kit.kpi">KPI reporting &amp; dashboards</li>
+          <li data-i18n="kit.pay">Payments processing &amp; routing</li>
+          <li data-i18n="kit.fin">Financial analysis</li>
+        </ul>
+      </article>
+      <article class="poster poster--b">
+        <p class="poster__idx mono"><span>02/03</span><span data-i18n="kit.g2">AI &amp; automation</span></p>
+        <h3 class="poster__word" data-i18n="kit.p2">AI.</h3>
+        <ul class="poster__list mono">
+          <li>Claude (Anthropic)</li><li>n8n</li><li>Fury</li>
+          <li class="poster__note" data-i18n="kit.g2note">Used to analyze operational data, automate recurring workflows and surface insights for stakeholders.</li>
+        </ul>
+      </article>
+      <article class="poster poster--c">
+        <p class="poster__idx mono"><span>03/03</span><span data-i18n="kit.g3">Ways of working</span></p>
+        <h3 class="poster__word" data-i18n="kit.p3">Team.</h3>
+        <ul class="poster__list mono">
+          <li data-i18n="kit.w1">Cross-team coordination</li>
+          <li data-i18n="kit.w2">Process optimization</li>
+          <li data-i18n="kit.w3">Incident triage &amp; escalation</li>
+          <li data-i18n="kit.w4">Team development</li>
+        </ul>
+      </article>
     </div>
-    <div>
-      <h3 class="label mono" data-i18n="kit.g2">AI &amp; automation</h3>
-      <ul class="kit__list">
-        <li>Claude (Anthropic)</li><li>n8n</li><li>Fury</li>
-      </ul>
-      <p class="kit__note" data-i18n="kit.g2note">Used to analyze operational data, automate recurring workflows and surface insights for stakeholders.</p>
-    </div>
-    <div>
-      <h3 class="label mono" data-i18n="kit.g3">Ways of working</h3>
-      <ul class="kit__list">
-        <li data-i18n="kit.w1">Cross-team coordination</li>
-        <li data-i18n="kit.w2">Process optimization</li>
-        <li data-i18n="kit.w3">Incident triage &amp; escalation</li>
-        <li data-i18n="kit.w4">Team development</li>
-      </ul>
-    </div>
+    <button type="button" class="posters__next mono" data-i18n="kit.next">Next poster →</button>
   </div>
 </section>
 
@@ -198,7 +267,6 @@
     <p class="label mono">04</p>
     <h2 id="contact-title" class="display" data-i18n="contact.title">Contact</h2>
   </div>
-  <p class="contact__note hand" aria-hidden="true" data-i18n="contact.note">let's talk!</p>
   <ul class="contact__links mono">
     <li><a href="mailto:francisco280902@gmail.com" data-scramble>francisco280902@gmail.com</a></li>
     <li><a href="https://www.linkedin.com/in/franciscobilbao" rel="noopener" data-scramble>linkedin.com/in/franciscobilbao</a></li>
