@@ -255,7 +255,11 @@ html.intro-on { overflow: hidden; }
 /* ---------- section titles: letters drop in from above ---------- */
 .sec__head.reveal { opacity: 1; transform: none; }
 .sec__head { overflow: hidden; }
-.display .ch { display: inline-block; translate: 0 var(--drop, -1.3em); opacity: 0; transition: translate 0.9s cubic-bezier(0.22, 1.2, 0.36, 1), opacity 0.3s linear; transition-delay: calc(var(--i) * 55ms + 120ms); }
+:root { --bounce: cubic-bezier(0.22, 1.2, 0.36, 1); }
+@supports (transition-timing-function: linear(0, 1)) {
+  :root { --bounce: linear(0, 0.004, 0.016, 0.035, 0.063, 0.098, 0.141 13.6%, 0.25, 0.391, 0.563, 0.765, 1, 0.891 40.9%, 0.848, 0.813, 0.785, 0.766, 0.754, 0.75, 0.754, 0.766, 0.785, 0.813, 0.848, 0.891 68.2%, 1 72.7%, 0.973, 0.953, 0.941, 0.938, 0.941, 0.953, 0.973, 1, 0.988, 0.984, 0.988, 1); }
+}
+.display .ch { display: inline-block; translate: 0 var(--drop, -1.3em); opacity: 0; transition: translate 1.25s var(--bounce), opacity 0.2s linear; transition-delay: calc(var(--i) * 70ms + 120ms); }
 .sec__head.is-in .display .ch { translate: 0 0; opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .display .ch { translate: none; opacity: 1; transition: none; } }
 
@@ -271,7 +275,7 @@ html.intro-on { overflow: hidden; }
   html.hx-on .hx__track { display: flex; height: 100%; width: max-content; will-change: transform; }
   html.hx-on .hero { flex: none; width: 100vw; height: 100%; min-height: 0; }
   html.hx-on .sec { flex: none; display: flex; height: 100%; padding: 0; border-left: 1px solid var(--rule); }
-  html.hx-on .sec__head { flex: none; flex-direction: column-reverse; align-items: center; justify-content: space-between; gap: 1rem; margin: 0; padding: 1.4rem 1rem; border-bottom: 0; border-right: 1px solid var(--rule); }
+  html.hx-on .sec__head { flex: none; flex-direction: column; align-items: center; justify-content: space-between; gap: 1rem; margin: 0; padding: 1.4rem 1rem; border-bottom: 0; border-right: 1px solid var(--rule); }
   html.hx-on .display { writing-mode: vertical-rl; transform: rotate(180deg); font-size: min(10.5svh, 7rem); line-height: 0.9; white-space: nowrap; }
   html.hx-on .about__grid { flex: none; width: min(90vw, 1500px); padding: clamp(1.4rem, 5svh, 3.5rem) var(--gutter); align-content: center; }
   html.hx-on .folio { flex: none; width: 100vw; height: 100%; margin: 0; }
@@ -299,7 +303,13 @@ html.intro-on { overflow: hidden; }
   html.hx-on .kit__list li { font-size: min(1.7rem, 3.4svh); }
   html.hx-on .contact { padding-bottom: 0; width: 100vw; }
   html.hx-on .contact__links { flex: 1; padding: var(--gutter); align-content: center; }
-  html.hx-on .display .ch { --drop: 105svh; }
+  html.hx-on .display .ch { --drop: 105svh; opacity: 1; }
+  html.hx-on .about__grid.reveal, html.hx-on .kit__grid.reveal { opacity: 1; transform: none; }
+  html.hx-on .about__grid > *, html.hx-on .kit__grid > * { transform: translateY(-115svh); transition: transform 1.25s var(--bounce); transition-delay: calc(var(--fi, 0) * 130ms + 300ms); }
+  html.hx-on .about__grid > :nth-child(2), html.hx-on .kit__grid > :nth-child(2) { --fi: 1; }
+  html.hx-on .about__grid > :nth-child(3), html.hx-on .kit__grid > :nth-child(3) { --fi: 2; }
+  html.hx-on .about__grid.is-in > *, html.hx-on .kit__grid.is-in > * { transform: none; }
+  @media (prefers-reduced-motion: reduce) { html.hx-on .about__grid > *, html.hx-on .kit__grid > * { transform: none; transition: none; } }
   html.hx-on .sec__head.reveal { transform: none; }
   html.hx-on .reveal { transform: translateX(40px); }
   html.hx-on .reveal.is-in { transform: none; }
@@ -343,6 +353,7 @@ html.intro-on { overflow: hidden; }
   .sr-only { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: 18pt; font-weight: 600; line-height: 1.1; display: block; margin: 4pt 0; }
   .hero__stage { display: none; }
   .display .ch { translate: none !important; opacity: 1 !important; }
+  .about__grid > *, .kit__grid > * { transform: none !important; }
   .hero::after, .hero::before, .liquid::before { display: none; }
   .posters__next { display: none !important; }
   .posters--on .posters__stage { height: auto !important; background: none; overflow: visible; }

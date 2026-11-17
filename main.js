@@ -307,7 +307,7 @@
      Scroll reveal
   ------------------------------------------------------------------ */
   {
-    const targets = document.querySelectorAll('.sec__head, .about__grid > *, .cells, .ticker, .kit__grid > div, .contact__links li');
+    const targets = document.querySelectorAll('.sec__head, .about__grid, .cells, .ticker, .kit__grid, .contact__links li');
     const seen = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); seen.unobserve(e.target); }
     }, { rootMargin: '0px 0px -8% 0px' });
