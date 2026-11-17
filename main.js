@@ -229,6 +229,8 @@
   let folioApply = () => {};
   let hxMeasure = () => {};
   let heroRelang = () => {};
+  let heroPrime = () => {};
+  let heroEnter = () => {};
 
   const scramblers = new Map();
   document.querySelectorAll('[data-scramble]').forEach((el) => scramblers.set(el, new Scramble(el)));
@@ -439,6 +441,7 @@
       let W = 1, H = 1;
       let idx = 0, hold = 0, holding = false, armed = false;
       let raf = 0, last = 0, clock = 0, visible = true, sinceKick = 0;
+      let locked = false, entering = false, backMs = BACK_MS;
       const light = { x: 0, y: 0, tx: 0, ty: 0, has: false, px: 0, py: 0 };
       const lang = () => (document.documentElement.lang === 'es' ? 'es' : 'en');
 
@@ -466,9 +469,9 @@
           if (sinceKick > 2600) { sinceKick = 0; view.kick(idx); }
         }
         view.frame(dt, clock * 0.001, idx, e, light, still);
-        caption.style.opacity = e.toFixed(3);
+        caption.style.opacity = entering ? '0' : e.toFixed(3);
         caption.style.letterSpacing = (0.62 - 0.3 * e).toFixed(3) + 'em';
-        holdBar.style.transform = `scaleX(${hold.toFixed(3)})`;
+        holdBar.style.transform = `scaleX(${entering ? 0 : hold.toFixed(3)})`;
       }
       function frame(now) {
         raf = 0;
@@ -477,8 +480,9 @@
         if (holding) {
           hold = Math.min(1, hold + dt / HOLD_MS);
           if (hold >= 1 && !armed) { armed = true; holdLabel.textContent = LABELS[lang()][1]; }
-        } else if (hold > 0) {
-          hold = Math.max(0, hold - dt / BACK_MS);
+        } else if (hold > 0 && !locked) {
+          hold = Math.max(0, hold - dt / backMs);
+          if (hold === 0) { entering = false; backMs = BACK_MS; }
         }
         draw(dt);
         schedule();
@@ -494,7 +498,7 @@
         holdLabel.textContent = LABELS[lang()][0];
       }
       function press() {
-        if (holding) return;
+        if (holding || locked || entering) return;
         holding = true; armed = hold >= 1;
         holdBtn.classList.add('is-held');
         if (reduceQuery.matches) { hold = 1; armed = true; holdLabel.textContent = LABELS[lang()][1]; }
@@ -542,6 +546,9 @@
       let timer = 0;
       new ResizeObserver(() => { clearTimeout(timer); timer = setTimeout(layout, 100); }).observe(hero);
       heroRelang = () => { idx = 0; view.setWords(WORDS[lang()]); setCaption(); layout(); };
+      /* intro hand-off: letters wait scattered, then fly in and assemble */
+      heroPrime = () => { hold = 1; locked = true; entering = true; draw(0); };
+      heroEnter = () => { locked = false; backMs = 1900; last = 0; schedule(); };
       view.setWords(WORDS[lang()]);
       setCaption();
       layout();
@@ -566,6 +573,7 @@
         <button type="button" class="intro__skip mono">${es ? 'Saltar' : 'Skip'}</button>`;
       document.body.appendChild(intro);
       document.documentElement.classList.add('intro-on');
+      heroPrime();
       const nameEl = intro.querySelector('.intro__name');
       const scr = new Scramble(nameEl);
       nameEl.setAttribute('aria-label', 'Fran Bilbao');
@@ -582,6 +590,7 @@
         if (iraf) cancelAnimationFrame(iraf);
         try { sessionStorage.setItem('intro', '1'); } catch (e) { /* storage unavailable */ }
         intro.classList.add('is-out');
+        heroEnter();
         document.documentElement.classList.remove('intro-on');
         window.removeEventListener('pointerup', up);
         document.removeEventListener('keydown', onKey);

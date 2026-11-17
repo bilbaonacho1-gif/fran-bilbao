@@ -142,7 +142,7 @@ html:not(.hx-on) .hero__hint { display: none; }
 /* ---------- intro ---------- */
 html.intro-on { overflow: hidden; }
 .intro { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: radial-gradient(90% 80% at 50% 50%, #2b2927 0%, #171615 70%, #0e0d0d 100%); color: var(--ink); cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; transition: opacity 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1); }
-.intro.is-out { opacity: 0; transform: scale(1.12); pointer-events: none; }
+.intro.is-out { opacity: 0; transform: scale(1.7); pointer-events: none; }
 .intro__rings { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.09; transform: scale(calc(1 + var(--h, 0) * 0.25)) rotate(calc(var(--h, 0) * 12deg)); }
 .intro__rings * { vector-effect: non-scaling-stroke; stroke-width: 1; }
 .intro__mark { position: relative; display: grid; gap: 1.1rem; padding: 2rem 2.2rem; min-width: 13rem; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); font-size: 1rem; font-weight: 600; letter-spacing: 0.5em; line-height: 2; }
