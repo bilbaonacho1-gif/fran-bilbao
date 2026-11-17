@@ -170,22 +170,22 @@ html.intro-on { overflow: hidden; }
 .facts dt { color: var(--ink-soft); margin-bottom: 0.3rem; }
 .facts dd { text-transform: none; font-size: 0.875rem; line-height: 1.45; }
 
-.cells { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.cell { position: relative; overflow: hidden; background: var(--liquid); color: var(--on-red); padding: clamp(1rem, 2.4vw, 2rem); min-width: 0; }
+.cells { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); }
+.cell { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: clamp(1rem, 2.4vw, 2rem); min-width: 0; }
 .cell--wide { grid-column: 1 / -1; }
 .cell__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.4rem; }
-.cell__dates { color: inherit; font-weight: 500; margin-bottom: 0.5rem; }
+.cell__dates { color: var(--red); font-weight: 500; margin-bottom: 0.5rem; }
 .cell__role { font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 0.5rem; text-wrap: balance; }
-.cell__org { color: color-mix(in srgb, var(--on-red) 75%, transparent); }
+.cell__org { color: var(--ink-soft); }
 .cell__code { font-weight: 250; font-size: clamp(3.4rem, 9vw, 8.5rem); line-height: 0.8; letter-spacing: -0.05em; }
 .cell__list { display: grid; gap: 0.8rem; }
 .cell__list--cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem clamp(1.5rem, 4vw, 4rem); }
 .cell__list li { position: relative; padding-left: 1.3rem; font-size: 1rem; line-height: 1.45; }
-.cell__list li::before { content: "="; position: absolute; left: 0; font-family: var(--mono); color: inherit; opacity: 0.8; }
+.cell__list li::before { content: "="; position: absolute; left: 0; font-family: var(--mono); color: var(--red); }
 .steps { display: grid; gap: 1.1rem; }
-.steps li { border-top: 1px solid color-mix(in srgb, currentColor 35%, transparent); padding-top: 0.8rem; font-size: 1rem; line-height: 1.45; }
-.steps__when { color: color-mix(in srgb, var(--on-red) 75%, transparent); margin-bottom: 0.3rem; }
-.steps__when span { color: var(--on-red); font-weight: 600; }
+.steps li { border-top: 1px solid color-mix(in srgb, var(--rule) 25%, transparent); padding-top: 0.8rem; font-size: 1rem; line-height: 1.45; }
+.steps__when { color: var(--ink-soft); margin-bottom: 0.3rem; }
+.steps__when span { color: var(--ink); font-weight: 600; }
 
 .ticker { overflow: hidden; border-block: 1px solid var(--rule); margin-bottom: clamp(1.6rem, 4vw, 3rem); }
 .ticker__track { display: flex; width: max-content; animation: ticker 40s linear infinite; }
@@ -196,6 +196,22 @@ html.intro-on { overflow: hidden; }
 .liquid { isolation: isolate; }
 .liquid::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--liquid-lines) no-repeat; background-size: 125% 125%; background-position: calc(50% + var(--mx, 0) * 9%) calc(50% + var(--my, 0) * 9%); transition: background-position 0.9s cubic-bezier(0.165, 0.84, 0.44, 1); }
 .liquid--blue::before { background-image: var(--liquid-lines-blue); }
+
+/* ---------- role posters ---------- */
+.posters__next { display: none; }
+.cells:not(.posters--on) .posters__stage { display: contents; }
+.posters--on { position: relative; display: block; border: 0; }
+.posters--on .posters__stage { position: relative; overflow: hidden; background: #171615; }
+.posters--on .cell { position: absolute; top: 0; left: 0; right: 0; min-height: 100%; border: 0; padding: clamp(1.2rem, 3vw, 2.6rem); padding-bottom: 6rem; will-change: transform; }
+.posters--on .cell { background: var(--liquid); color: var(--on-red); --acc: var(--on-red); --soft: color-mix(in srgb, var(--on-red) 74%, transparent); }
+.posters--on .cell:nth-child(2) { background: radial-gradient(90% 85% at 72% 30%, #ff1240 0%, #e00030 22%, #8f0020 48%, #3a000c 72%, #0b0003 100%); }
+.posters--on .cell:nth-child(3) { background: radial-gradient(80% 90% at 50% 108%, #ff1240 0%, #e00030 22%, #8f0020 48%, #3a000c 72%, #0b0003 100%); }
+.posters--on .cell__dates, .posters--on .cell__list li::before { color: var(--acc); }
+.posters--on .cell__org, .posters--on .steps__when { color: var(--soft); }
+.posters--on .steps__when span { color: inherit; }
+.posters--on .steps li { border-top-color: color-mix(in srgb, currentColor 30%, transparent); }
+.posters--on .posters__next { display: inline-flex; align-items: center; justify-content: center; position: absolute; left: 50%; bottom: 1.4rem; transform: translateX(-50%); z-index: 5; min-height: 48px; padding: 0 1.4rem; background: #fff; color: #1c1a19; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+.posters--on .posters__next:hover { background: #e6dfd6; }
 
 /* ---------- skills ---------- */
 .kit__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem var(--gutter); }
@@ -254,21 +270,10 @@ html.intro-on { overflow: hidden; }
   html.hx-on .folio__page { padding-top: 2rem; }
   html.hx-on .folio__sheet { padding-top: 3rem; }
   html.hx-on .folio__h { font-size: min(12.2vw, 21svh); }
-  html.hx-on .cells { flex: none; width: 96vw; height: 100%; padding: 12px; grid-template-columns: 3fr 2fr; grid-template-rows: auto minmax(0, 1fr); }
-  html.hx-on .cell { padding: clamp(0.9rem, 2.6svh, 1.8rem) clamp(1.2rem, 2.2vw, 2.2rem); overflow-y: auto; }
-  html.hx-on .cell__head { margin-bottom: clamp(0.6rem, 1.8svh, 1.2rem); }
-  html.hx-on .cell__role { font-size: min(2rem, 3.6svh); }
-  html.hx-on .cell__code { font-size: min(6.5rem, 11svh); }
-  html.hx-on .cell__list li, html.hx-on .steps li { font-size: min(0.9375rem, 1.9svh); line-height: 1.4; }
-  html.hx-on .cell__list { gap: min(0.8rem, 1.2svh); }
-  html.hx-on .steps { gap: min(0.7rem, 0.9svh); }
-  html.hx-on .steps li { padding-top: min(0.7rem, 1svh); }
-  @media (max-height: 800px) {
-    html.hx-on .cells { display: flex; width: auto; }
-    html.hx-on .cell { flex: none; width: 46vw; }
-    html.hx-on .cell--wide { width: 90vw; }
-    html.hx-on .cell:last-child { width: 36vw; }
-  }
+  html.hx-on .cells { flex: none; width: 92vw; height: 100%; padding: 1.2rem; }
+  html.hx-on .posters--on .posters__stage { height: 100% !important; }
+  html.hx-on .posters--on .cell { bottom: 0; min-height: 0; overflow-y: auto; padding: clamp(1.4rem, 5svh, 3.2rem) clamp(1.5rem, 3vw, 3rem) 6rem; }
+  html.hx-on .posters--on .posters__next { bottom: 2.6rem; }
   html.hx-on .ticker { display: none; }
   html.hx-on .kit__grid { flex: none; width: min(88vw, 1500px); padding: clamp(1.4rem, 5svh, 3.5rem) var(--gutter); align-content: center; }
   html.hx-on .kit__list li { font-size: min(1.7rem, 3.4svh); }
@@ -316,6 +321,9 @@ html.intro-on { overflow: hidden; }
   .sr-only { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: 18pt; font-weight: 600; line-height: 1.1; display: block; margin: 4pt 0; }
   .hero__stage { display: none; }
   .hero::after, .hero::before, .liquid::before { display: none; }
+  .posters__next { display: none !important; }
+  .posters--on .posters__stage { height: auto !important; background: none; overflow: visible; }
+  .posters--on .cell { position: static; min-height: 0; padding: 0 0 5pt; background: none !important; color: inherit !important; visibility: visible !important; transform: none !important; --acc: var(--red) !important; --soft: var(--ink-soft) !important; }
   .hx { height: auto !important; }
   .hx__track { transform: none !important; }
   .hero__intro { max-width: none; gap: 0; }
@@ -331,11 +339,7 @@ html.intro-on { overflow: hidden; }
   .about__grid { gap: 6pt 16pt; }
   .about__big { font-size: 11pt; }
   .cells { border: 0; }
-  .cell { border: 0; padding: 0 0 5pt; break-inside: avoid; background: none !important; color: inherit !important; overflow: visible; }
-  .cells { gap: 0; }
-  .cell__dates { color: var(--red); }
-  .cell__org, .steps__when { color: var(--ink-soft); }
-  .steps__when span { color: var(--ink); }
+  .cell { border: 0; padding: 0 0 5pt; break-inside: avoid; }
   .cell__head { margin-bottom: 4pt; }
   .cell__role { font-size: 11pt; font-weight: 600; margin-bottom: 1pt; }
   .cell__list, .steps { gap: 3pt; }

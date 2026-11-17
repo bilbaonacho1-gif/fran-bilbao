@@ -35,6 +35,7 @@
     'facts.lang': 'Idiomas',
     'facts.langV': 'Español, nativo · Inglés, avanzado (Cambridge First Certificate, 2019)',
     'exp.title': 'Experiencia',
+    'exp.next': 'Siguiente puesto →',
     'mp.dates': 'Sep 2025 — Actualidad',
     'mp.role': 'Analista de Pricing & Routing Operations',
     'mp.b1': 'Configuro y diagnostico el router de pagos en seis sites de LATAM (Argentina, México, Colombia, Perú, Chile, Uruguay): segmentos, perfiles, orden de prioridad y filtros por marca de tarjeta, emisor, BIN, marketplace y MCC.',
@@ -230,6 +231,7 @@
   let hxMeasure = () => {};
   let heroRelang = () => {};
   let heroPrime = () => {};
+  let postersMeasure = () => {};
   let heroEnter = () => {};
 
   const scramblers = new Map();
@@ -269,6 +271,7 @@
     for (const el of ariaEls) el.setAttribute('aria-label', (lang === 'es' ? ES : EN_ARIA)[el.dataset.i18nAria]);
     document.querySelectorAll('.lang__btn').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     try { localStorage.setItem('lang', lang); } catch (e) { /* storage unavailable */ }
+    postersMeasure();
     hxMeasure();
     heroRelang();
   }
@@ -284,7 +287,7 @@
      Scroll reveal
   ------------------------------------------------------------------ */
   {
-    const targets = document.querySelectorAll('.sec__head, .about__grid > *, .cell, .ticker, .kit__grid > div, .contact__links li');
+    const targets = document.querySelectorAll('.sec__head, .about__grid > *, .cells, .ticker, .kit__grid > div, .contact__links li');
     const seen = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); seen.unobserve(e.target); }
     }, { rootMargin: '0px 0px -8% 0px' });
@@ -356,6 +359,69 @@
   }
 
   /* ------------------------------------------------------------------
+     Role posters: contained 1800ms change, cubic-bezier(.86,0,.07,1).
+     0-600 out scales to .85; 600-1200 out slides up, in slides up from
+     below (both .85); 1200-1800 in scales back to 1.
+  ------------------------------------------------------------------ */
+  {
+    const root = document.querySelector('[data-posters]');
+    const stage = root.querySelector('.posters__stage');
+    const posters = [...stage.children];
+    const btn = root.querySelector('.posters__next');
+    const pease = bezierEase(0.86, 0, 0.07, 1);
+    let at = 0, from = 0, praf = 0, plast = 0, pelapsed = 0, running = false;
+    root.classList.add('posters--on');
+    function settle() {
+      posters.forEach((el, i) => {
+        const on = i === at;
+        el.style.transform = '';
+        el.style.visibility = on ? 'visible' : 'hidden';
+        el.style.zIndex = on ? 1 : 0;
+        el.toggleAttribute('aria-hidden', !on);
+        el.inert = !on;
+      });
+      running = false;
+    }
+    function pframe(now) {
+      praf = 0;
+      const dt = plast ? Math.min(100, now - plast) : 0;
+      plast = now;
+      pelapsed += dt;
+      const t = pelapsed;
+      const a = pease(clamp01(t / 600)), b = pease(clamp01((t - 600) / 600)), c = pease(clamp01((t - 1200) / 600));
+      posters[from].style.transform = `translateY(${-100 * b}%) scale(${1 - 0.15 * a})`;
+      posters[at].style.transform = `translateY(${100 - 100 * b}%) scale(${0.85 + 0.15 * c})`;
+      if (t >= 1800) { settle(); return; }
+      praf = requestAnimationFrame(pframe);
+    }
+    btn.addEventListener('click', () => {
+      if (praf) cancelAnimationFrame(praf);
+      praf = 0;
+      if (running) settle(); /* restart deliberately from a composed state */
+      from = at;
+      at = (at + 1) % posters.length;
+      if (reduceQuery.matches) { settle(); return; }
+      running = true; pelapsed = 0; plast = 0;
+      posters[at].style.visibility = 'visible';
+      posters[at].style.zIndex = 2;
+      posters[at].style.transform = 'translateY(100%) scale(0.85)';
+      praf = requestAnimationFrame(pframe);
+    });
+    onReduceChange.push(() => { if (reduceQuery.matches && running) { if (praf) cancelAnimationFrame(praf); praf = 0; settle(); } });
+    /* outside horizontal mode the stage is as tall as the tallest poster */
+    postersMeasure = () => {
+      if (hxActive) { stage.style.height = ''; return; }
+      stage.style.height = '0px';
+      let h = 0;
+      posters.forEach((el) => { h = Math.max(h, el.offsetHeight); });
+      stage.style.height = h + 'px';
+    };
+    window.addEventListener('resize', () => postersMeasure());
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => postersMeasure());
+    settle();
+  }
+
+  /* ------------------------------------------------------------------
      Horizontal travel (large screens): vertical scroll moves the track
      sideways. While the folio panel is aligned, the track holds and the
      same scroll drives the falling sheets instead.
@@ -399,6 +465,7 @@
     function setMode() {
       hxActive = mq.matches;
       document.documentElement.classList.toggle('hx-on', hxActive);
+      postersMeasure();
       if (!hxActive) { hx.style.height = ''; track.style.transform = ''; window.dispatchEvent(new Event('scroll')); return; }
       measure();
     }
