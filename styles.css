@@ -189,6 +189,22 @@ html.intro-on { overflow: hidden; }
 .ticker__track span { padding: 0.7rem 0; white-space: nowrap; }
 .ticker:hover .ticker__track { animation-play-state: paused; }
 @keyframes ticker { to { transform: translateX(-50%); } }
+/* ---------- role posters ---------- */
+.posters__next { display: none; }
+.cells:not(.posters--on) .posters__stage { display: contents; }
+.posters--on { position: relative; display: block; border: 0; }
+.posters--on .posters__stage { position: relative; overflow: hidden; background: #171615; }
+.posters--on .cell { position: absolute; top: 0; left: 0; right: 0; min-height: 100%; border: 0; padding: clamp(1.2rem, 3vw, 2.6rem); padding-bottom: 6rem; will-change: transform; }
+.posters--on .cell:nth-child(1) { background: var(--navy); color: var(--on-color); --acc: var(--red); --soft: color-mix(in srgb, var(--on-color) 65%, transparent); }
+.posters--on .cell:nth-child(2) { background: var(--red); color: var(--on-red); --acc: var(--on-red); --soft: color-mix(in srgb, var(--on-red) 72%, transparent); }
+.posters--on .cell:nth-child(3) { background: var(--panel); color: var(--ink); --acc: var(--red); --soft: var(--ink-soft); }
+.posters--on .cell__dates, .posters--on .cell__list li::before { color: var(--acc); }
+.posters--on .cell__org, .posters--on .steps__when { color: var(--soft); }
+.posters--on .steps__when span { color: inherit; }
+.posters--on .steps li { border-top-color: color-mix(in srgb, currentColor 30%, transparent); }
+.posters--on .posters__next { display: inline-flex; align-items: center; justify-content: center; position: absolute; left: 50%; bottom: 1.4rem; transform: translateX(-50%); z-index: 5; min-height: 48px; padding: 0 1.4rem; background: #fff; color: #1c1a19; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+.posters--on .posters__next:hover { background: #e6dfd6; }
+
 /* ---------- skills ---------- */
 .kit__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem var(--gutter); }
 .kit__list { margin-top: 0.8rem; }
@@ -246,10 +262,10 @@ html.intro-on { overflow: hidden; }
   html.hx-on .folio__page { padding-top: 2rem; }
   html.hx-on .folio__sheet { padding-top: 3rem; }
   html.hx-on .folio__h { font-size: min(12.2vw, 21svh); }
-  html.hx-on .cells { flex: none; display: flex; height: 100%; border: 0; }
-  html.hx-on .cell { flex: none; width: 44vw; height: 100%; overflow-y: auto; border-bottom: 0; padding: clamp(1.4rem, 5svh, 3.5rem) clamp(1.5rem, 3vw, 3rem); }
-  html.hx-on .cell--wide { width: 88vw; }
-  html.hx-on .cell:last-child { width: 36vw; }
+  html.hx-on .cells { flex: none; width: 92vw; height: 100%; padding: 1.2rem; }
+  html.hx-on .posters--on .posters__stage { height: 100% !important; }
+  html.hx-on .posters--on .cell { bottom: 0; min-height: 0; overflow-y: auto; padding: clamp(1.4rem, 5svh, 3.2rem) clamp(1.5rem, 3vw, 3rem) 6rem; }
+  html.hx-on .posters--on .posters__next { bottom: 2.6rem; }
   html.hx-on .ticker { display: none; }
   html.hx-on .kit__grid { flex: none; width: min(88vw, 1500px); padding: clamp(1.4rem, 5svh, 3.5rem) var(--gutter); align-content: center; }
   html.hx-on .kit__list li { font-size: min(1.7rem, 3.4svh); }
@@ -296,6 +312,9 @@ html.intro-on { overflow: hidden; }
   .hero__where { text-align: left; margin-bottom: 4pt; }
   .sr-only { position: static; width: auto; height: auto; clip-path: none; white-space: normal; font-size: 18pt; font-weight: 600; line-height: 1.1; display: block; margin: 4pt 0; }
   .hero__stage { display: none; }
+  .posters__next { display: none !important; }
+  .posters--on .posters__stage { height: auto !important; background: none; overflow: visible; }
+  .posters--on .cell { position: static; min-height: 0; padding: 0 0 5pt; background: none !important; color: inherit !important; visibility: visible !important; transform: none !important; --acc: var(--red) !important; --soft: var(--ink-soft) !important; }
   .hx { height: auto !important; }
   .hx__track { transform: none !important; }
   .hero__intro { max-width: none; gap: 0; }
