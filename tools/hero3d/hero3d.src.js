@@ -29,7 +29,7 @@ export function create(canvas) {
   scene.environment = envTarget.texture;
   scene.environmentIntensity = 0.72;
 
-  const RED = 0xff3b25;
+  const RED = 0xff1240;
   const material = new MeshStandardMaterial({ color: 0x4a4541, metalness: 1, roughness: 0.22 });
   const glow = new PointLight(RED, 1, 0, 2);
   const under = new DirectionalLight(RED, 1.6);
