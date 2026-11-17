@@ -304,6 +304,40 @@ html.intro-on { overflow: hidden; }
   html.hx-on .sec__head.reveal { transform: none; }
   html.hx-on .reveal { transform: translateX(40px); }
   html.hx-on .reveal.is-in { transform: none; }
+  html.hx-on .hx__pin { touch-action: pan-y; }
+}
+
+/* horizontal travel on narrow screens: sections become wider strips of columns */
+@media screen and (max-width: 1023px) {
+  html.hx-on .top { padding-block: 0.5rem; }
+  html.hx-on .sec__head { padding: 1rem 0.5rem; }
+  html.hx-on .display { font-size: min(9svh, 4.6rem); }
+  html.hx-on .hero__inner { align-content: space-between; padding-bottom: 1.2rem; }
+  html.hx-on .hero__stage { min-height: 38svh; margin: 0; }
+  html.hx-on .about__grid { display: flex; align-items: center; width: auto; gap: 9vw; padding: 1.4rem 7vw; }
+  html.hx-on .about__grid > * { flex: none; width: 78vw; max-width: 34rem; }
+  html.hx-on .about__big { font-size: min(2.1rem, 5.2svh); }
+  html.hx-on .about__text { font-size: min(1.0625rem, 2.5svh); }
+  html.hx-on .facts { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+  html.hx-on .facts > div { padding-top: 0.7rem; }
+  html.hx-on .folio__page { padding: 1.4rem 6vw 1.6rem; }
+  html.hx-on .folio__sheet { padding: 2.4rem calc(6vw + 1rem) 2.6rem; }
+  html.hx-on .folio__h { font-size: min(13vw, 17svh); }
+  html.hx-on .cells { width: 190vw; }
+  html.hx-on .posters--on .cell { padding: 1.2rem 7vw 5.5rem; align-content: safe start; }
+  html.hx-on .cell__head { margin-bottom: min(1.2rem, 2.4svh); }
+  html.hx-on .cell__role { font-size: min(2rem, 4.6svh); }
+  html.hx-on .cell__code { font-size: min(6rem, 13svh); }
+  html.hx-on .cell__list--cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html.hx-on .cell__list { gap: min(1rem, 1.8svh) 10vw; }
+  html.hx-on .cell__list li, html.hx-on .steps li { font-size: min(1.0625rem, 2.15svh); line-height: 1.36; }
+  html.hx-on .steps { gap: min(1rem, 1.8svh); max-width: 150vw; }
+  html.hx-on .posters--on .posters__next { left: 50vw; bottom: 1.2rem; }
+  html.hx-on .kit__grid { display: flex; align-items: center; width: auto; gap: 10vw; padding: 1.4rem 7vw; }
+  html.hx-on .kit__grid > * { flex: none; width: 76vw; max-width: 30rem; }
+  html.hx-on .kit__list li { font-size: min(1.45rem, 3.1svh); }
+  html.hx-on .contact__links { padding: 1.2rem; }
+  html.hx-on .foot { font-size: 0.6875rem; }
 }
 
 /* ---------- responsive ---------- */

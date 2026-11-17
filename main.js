@@ -335,7 +335,7 @@
       let cur = sheets.length;
       sheets.forEach((sh, i) => {
         const q = clamp01((3 * p - i - 0.2) / 0.7);
-        sh.style.transform = q ? `translateY(${q * 200}%) rotate(${q * -10}deg)` : '';
+        sh.style.transform = q ? `translateX(${q * -135}%) rotate(${q * -10}deg)` : '';   /* sheets leave sideways */
         sh.style.visibility = q >= 1 ? 'hidden' : '';
         if (q < 1 && cur === sheets.length) cur = i;
       });
@@ -389,8 +389,8 @@
       pelapsed += dt;
       const t = pelapsed;
       const a = pease(clamp01(t / 600)), b = pease(clamp01((t - 600) / 600)), c = pease(clamp01((t - 1200) / 600));
-      posters[from].style.transform = `translateY(${-100 * b}%) scale(${1 - 0.15 * a})`;
-      posters[at].style.transform = `translateY(${100 - 100 * b}%) scale(${0.85 + 0.15 * c})`;
+      posters[from].style.transform = `translateX(${-100 * b}%) scale(${1 - 0.15 * a})`;
+      posters[at].style.transform = `translateX(${100 - 100 * b}%) scale(${0.85 + 0.15 * c})`;
       if (t >= 1800) { settle(); return; }
       praf = requestAnimationFrame(pframe);
     }
@@ -404,7 +404,7 @@
       running = true; pelapsed = 0; plast = 0;
       posters[at].style.visibility = 'visible';
       posters[at].style.zIndex = 2;
-      posters[at].style.transform = 'translateY(100%) scale(0.85)';
+      posters[at].style.transform = 'translateX(100%) scale(0.85)';
       praf = requestAnimationFrame(pframe);
     });
     onReduceChange.push(() => { if (reduceQuery.matches && running) { if (praf) cancelAnimationFrame(praf); praf = 0; settle(); } });
@@ -432,7 +432,7 @@
     const track = hx.querySelector('.hx__track');
     const folio = hx.querySelector('[data-folio]');
     const header = document.querySelector('.top');
-    const mq = window.matchMedia('(min-width: 1024px) and (min-height: 620px)');
+    const mq = window.matchMedia('(min-height: 520px)');   /* every screen except very short ones */
     let dist = 0, folioX = 0, hold = 0, total = 0, topH = 0, hraf = 0;
 
     const xOf = (el) => el.getBoundingClientRect().left - track.getBoundingClientRect().left;
@@ -492,6 +492,24 @@
         goTo(panel);
       }
     });
+    /* touch: a sideways swipe travels too (vertical swipes scroll natively) */
+    {
+      let sx = 0, sy = 0, lastX = 0, axis = '';
+      pin.addEventListener('touchstart', (ev) => { const t = ev.touches[0]; sx = lastX = t.clientX; sy = t.clientY; axis = ''; }, { passive: true });
+      pin.addEventListener('touchmove', (ev) => {
+        if (!hxActive || ev.touches.length !== 1) return;
+        const t = ev.touches[0];
+        if (!axis) {
+          const dx = Math.abs(t.clientX - sx), dy = Math.abs(t.clientY - sy);
+          if (dx < 8 && dy < 8) return;
+          axis = dx > dy ? 'x' : 'y';
+        }
+        if (axis !== 'x') return;
+        if (ev.cancelable) ev.preventDefault();
+        window.scrollBy(0, lastX - t.clientX);
+        lastX = t.clientX;
+      }, { passive: false });
+    }
     window.addEventListener('scroll', request, { passive: true });
     window.addEventListener('resize', () => { measure(); });
     mq.addEventListener('change', setMode);
