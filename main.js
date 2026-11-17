@@ -339,6 +339,26 @@
   }
 
   /* ------------------------------------------------------------------
+     Liquid surfaces: the glowing lines drift a little under the pointer
+  ------------------------------------------------------------------ */
+  {
+    let pending = null, lraf = 0;
+    document.addEventListener('pointermove', (ev) => {
+      if (reduceQuery.matches) return;
+      const el = ev.target.closest && ev.target.closest('.liquid, .hero');
+      if (!el) return;
+      pending = { el, x: ev.clientX, y: ev.clientY };
+      if (lraf) return;
+      lraf = requestAnimationFrame(() => {
+        lraf = 0;
+        const r = pending.el.getBoundingClientRect();
+        pending.el.style.setProperty('--mx', (((pending.x - r.left) / r.width) * 2 - 1).toFixed(3));
+        pending.el.style.setProperty('--my', (((pending.y - r.top) / r.height) * 2 - 1).toFixed(3));
+      });
+    }, { passive: true });
+  }
+
+  /* ------------------------------------------------------------------
      Role posters: contained 1800ms change, cubic-bezier(.86,0,.07,1).
      0-600 out scales to .85; 600-1200 out slides up, in slides up from
      below (both .85); 1200-1800 in scales back to 1.
