@@ -19,7 +19,7 @@
     'hero.role': 'Analista de Pricing & Routing Operations',
     'hero.where': 'Mercado Pago — Buenos Aires, Argentina',
     'hero.h1': 'Francisco José Bilbao — Analista de Pricing & Routing Operations',
-    'hero.lede': 'Investigo de punta a punta los problemas de procesamiento de pagos en seis mercados de LATAM, y convierto grandes volúmenes de datos transaccionales en decisiones accionables para los equipos.',
+    'hero.lede': 'Pagos, routing y datos en seis mercados de LATAM.',
     'hero.hint': 'Scrolleá para avanzar →',
     'hero.holdAria': 'Mantené apretado para dispersar las esferas y formar la siguiente palabra',
     'about.title': 'Perfil',
@@ -482,7 +482,7 @@
     const holdBtn = hero.querySelector('.hold');
     const holdLabel = holdBtn.querySelector('.hold__label');
     const holdBar = holdBtn.querySelector('.hold__bar i');
-    const WORDS = { en: ['FRAN', 'PAYMENTS', 'ROUTING', 'DATA'], es: ['FRAN', 'PAGOS', 'ROUTING', 'DATOS'] };
+    const WORDS = { en: ['FRAN\nBILBAO', 'PAYMENTS', 'ROUTING', 'DATA'], es: ['FRAN\nBILBAO', 'PAGOS', 'ROUTING', 'DATOS'] };
     const LABELS = { en: ['Click & hold', 'Release'], es: ['Mantené apretado', 'Soltá'] };
     const HOLD_MS = 1000, BACK_MS = 900;
     const view = window.Hero3D ? window.Hero3D.create(canvas) : null;
@@ -545,7 +545,7 @@
       }
       function setCaption() {
         const list = WORDS[lang()];
-        caption.textContent = list[(idx + 1) % list.length];
+        caption.textContent = list[(idx + 1) % list.length].replace('\n', ' ');
         holdLabel.textContent = LABELS[lang()][0];
       }
       function press() {
